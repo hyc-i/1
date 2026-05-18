@@ -1,0 +1,69 @@
+@model Student
+@{
+    ViewData["Title"] = "学生第二课堂档案";
+    var records = (ViewBag.Records as IEnumerable<ActivityRecord>)?.ToList() ?? new List<ActivityRecord>();
+    var totalCredits = records.Where(x => x.Status == ActivityOptions.ApprovedStatus).Sum(x => x.Credits);
+}
+
+<section class="page-heading compact">
+    <p class="eyebrow">Archive</p>
+    <h1>@Model.Name 的第二课堂档案</h1>
+    <p>@Model.StudentNo · @Model.College @Model.Major @Model.ClassName</p>
+</section>
+
+<section class="metric-grid">
+    <article class="metric-card"><span>登记总数</span><strong>@records.Count</strong><small>全部第二课堂记录</small></article>
+    <article class="metric-card urgent"><span>待审核</span><strong>@records.Count(x => x.Status == ActivityOptions.PendingStatus)</strong><small>等待管理员审核</small></article>
+    <article class="metric-card"><span>已通过</span><strong>@records.Count(x => x.Status == ActivityOptions.ApprovedStatus)</strong><small>已计入学分</small></article>
+    <article class="metric-card"><span>累计学分</span><strong>@totalCredits.ToString("0.0")</strong><small>第二课堂认定学分</small></article>
+</section>
+
+<section class="panel-card">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">Profile</p>
+            <h2>基础信息</h2>
+        </div>
+        <div class="hero-actions m-0">
+            <a class="btn btn-paper" asp-action="Edit" asp-route-id="@Model.Id">编辑档案</a>
+            <a class="btn btn-ink" asp-controller="ActivityRecords" asp-action="Create" asp-route-studentId="@Model.Id">登记活动</a>
+        </div>
+    </div>
+    <div class="detail-grid">
+        <div class="detail-tile"><span class="detail-label">性别</span><strong>@Model.Gender</strong></div>
+        <div class="detail-tile"><span class="detail-label">电话</span><strong>@Model.Phone</strong></div>
+        <div class="detail-tile"><span class="detail-label">邮箱</span><strong>@Model.Email</strong></div>
+    </div>
+</section>
+
+<section class="table-card mt-4">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">Records</p>
+            <h2>登记记录</h2>
+        </div>
+    </div>
+    @if (records.Count == 0)
+    {
+        <div class="empty-state">该学生暂无第二课堂登记记录。</div>
+    }
+    else
+    {
+        <table class="ledger-table">
+            <thead><tr><th>活动</th><th>类别</th><th>状态</th><th>学分</th><th class="text-end">操作</th></tr></thead>
+            <tbody>
+                @foreach (var item in records)
+                {
+                    var statusClass = item.Status == ActivityOptions.ApprovedStatus ? "approved" : item.Status == ActivityOptions.RejectedStatus ? "rejected" : "pending";
+                    <tr>
+                        <td><span class="identity"><strong>@item.ActivityName</strong><small>@item.StartDate?.ToString("yyyy-MM-dd") - @item.EndDate?.ToString("yyyy-MM-dd")</small></span></td>
+                        <td>@item.Category<br /><small>@item.Level</small></td>
+                        <td><span class="status-badge @statusClass">@item.Status</span></td>
+                        <td>@item.Credits.ToString("0.0")</td>
+                        <td><div class="table-actions"><a class="btn btn-paper" asp-controller="ActivityRecords" asp-action="Details" asp-route-id="@item.Id">详情</a><a class="btn btn-ink" asp-controller="ActivityRecords" asp-action="Review" asp-route-id="@item.Id">审核</a></div></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>

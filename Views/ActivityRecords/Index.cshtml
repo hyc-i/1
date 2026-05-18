@@ -1,0 +1,78 @@
+@model IEnumerable<ActivityRecord>
+@{
+    ViewData["Title"] = "第二课堂登记记录";
+    var records = Model.ToList();
+    var selectedStatus = ViewBag.Status as string ?? string.Empty;
+    var selectedCategory = ViewBag.Category as string ?? string.Empty;
+}
+
+<section class="page-heading compact">
+    <p class="eyebrow">Records</p>
+    <h1>第二课堂登记与审核</h1>
+    <p>查询学生登记记录，对待审核记录进行授分或驳回处理。</p>
+</section>
+
+<div class="toolbar">
+    <form method="get" class="search-form">
+        <input class="form-control" name="keyword" value="@ViewBag.Keyword" placeholder="按学生、学号、班级、活动名称查询" />
+        <select class="form-select" name="category">
+            <option value="">全部类别</option>
+            @foreach (var category in ActivityOptions.Categories)
+            {
+                <option value="@category" selected="@(category == selectedCategory)">@category</option>
+            }
+        </select>
+        <select class="form-select" name="status">
+            <option value="">全部状态</option>
+            @foreach (var status in ActivityOptions.Statuses)
+            {
+                <option value="@status" selected="@(status == selectedStatus)">@status</option>
+            }
+        </select>
+        <button class="btn btn-ink" type="submit">筛选</button>
+        <a class="btn btn-paper" asp-action="Index">重置</a>
+    </form>
+    <a class="btn btn-ink" asp-action="Create">新增登记</a>
+</div>
+
+<section class="table-card">
+    @if (records.Count == 0)
+    {
+        <div class="empty-state">暂无匹配的第二课堂登记记录。</div>
+    }
+    else
+    {
+        <table class="ledger-table">
+            <thead>
+                <tr>
+                    <th>活动</th>
+                    <th>学生</th>
+                    <th>类别</th>
+                    <th>状态</th>
+                    <th>学分</th>
+                    <th class="text-end">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in records)
+                {
+                    var statusClass = item.Status == ActivityOptions.ApprovedStatus ? "approved" : item.Status == ActivityOptions.RejectedStatus ? "rejected" : "pending";
+                    <tr>
+                        <td><span class="identity"><strong>@item.ActivityName</strong><small>@item.SubmittedAt.ToString("yyyy-MM-dd HH:mm")</small></span></td>
+                        <td><span class="identity"><strong>@item.StudentName</strong><small>@item.StudentNo · @item.ClassName</small></span></td>
+                        <td>@item.Category<br /><small>@item.Level</small></td>
+                        <td><span class="status-badge @statusClass">@item.Status</span></td>
+                        <td>@item.Credits.ToString("0.0")</td>
+                        <td>
+                            <div class="table-actions">
+                                <a class="btn btn-paper" asp-action="Details" asp-route-id="@item.Id">详情</a>
+                                <a class="btn btn-paper" asp-action="Edit" asp-route-id="@item.Id">编辑</a>
+                                <a class="btn btn-ink" asp-action="Review" asp-route-id="@item.Id">审核</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>

@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "配置与使用说明";
+}
+
+<section class="page-heading compact">
+    <p class="eyebrow">Guide</p>
+    <h1>软件配置与使用说明</h1>
+    <p>本系统使用 ASP.NET Core MVC 与 SQLite 数据库，首次运行会在 <code>App_Data/second_classroom.db</code> 中自动创建数据表和示例数据。</p>
+</section>
+
+<section class="panel-card readable-card">
+    <h2>运行环境</h2>
+    <ul class="check-list">
+        <li>Windows 10/11 或 Linux/macOS</li>
+        <li>.NET SDK 6.0 或更高版本</li>
+        <li>浏览器：Edge、Chrome、Firefox 均可</li>
+    </ul>
+    <h2>启动步骤</h2>
+    <ol class="step-list">
+        <li>打开命令行进入项目目录：<code>SecondClassroomManager</code></li>
+        <li>执行：<code>dotnet restore</code></li>
+        <li>执行：<code>dotnet run</code></li>
+        <li>浏览器打开控制台显示的地址，例如 <code>https://localhost:5001</code></li>
+    </ol>
+    <h2>主要操作流程</h2>
+    <p>先在“学生档案”中新增或导入学生，再到“活动登记”提交第二课堂记录，最后在“审核入口”或记录详情页完成审核授分。管理员可在“管理员查询”中按学生查看累计学分和所有登记记录。</p>
+</section>

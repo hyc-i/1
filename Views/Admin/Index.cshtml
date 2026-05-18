@@ -1,0 +1,61 @@
+@model IEnumerable<StudentSummary>
+@{
+    ViewData["Title"] = "管理员查询";
+    var summaries = Model.ToList();
+}
+
+<section class="page-heading compact">
+    <p class="eyebrow">Admin Query</p>
+    <h1>学生第二课堂信息查询</h1>
+    <p>按学生汇总登记数量、待审核数量、通过数量与累计学分，便于管理人员快速核查。</p>
+</section>
+
+<div class="toolbar">
+    <form method="get" class="search-form">
+        <input class="form-control" name="keyword" value="@ViewBag.Keyword" placeholder="按学号、姓名、学院、专业或班级查询" />
+        <button class="btn btn-ink" type="submit">查询</button>
+        <a class="btn btn-paper" asp-action="Index">重置</a>
+    </form>
+</div>
+
+<section class="table-card">
+    @if (summaries.Count == 0)
+    {
+        <div class="empty-state">暂无学生第二课堂汇总数据。</div>
+    }
+    else
+    {
+        <table class="ledger-table">
+            <thead>
+                <tr>
+                    <th>学生</th>
+                    <th>专业班级</th>
+                    <th>登记总数</th>
+                    <th>待审核</th>
+                    <th>已通过</th>
+                    <th>累计学分</th>
+                    <th class="text-end">操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in summaries)
+                {
+                    <tr>
+                        <td><span class="identity"><strong>@item.Name</strong><small>@item.StudentNo · @item.College</small></span></td>
+                        <td>@item.Major<br /><small>@item.ClassName</small></td>
+                        <td>@item.TotalRecords</td>
+                        <td>@item.PendingRecords</td>
+                        <td>@item.ApprovedRecords</td>
+                        <td><strong>@item.TotalCredits.ToString("0.0")</strong></td>
+                        <td>
+                            <div class="table-actions">
+                                <a class="btn btn-paper" asp-controller="Students" asp-action="Details" asp-route-id="@item.StudentId">学生档案</a>
+                                <a class="btn btn-ink" asp-action="StudentRecords" asp-route-id="@item.StudentId">记录明细</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>

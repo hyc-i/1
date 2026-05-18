@@ -1,0 +1,52 @@
+@model ActivityRecord
+@{
+    ViewData["Title"] = "登记记录详情";
+    var statusClass = Model.Status == ActivityOptions.ApprovedStatus ? "approved" : Model.Status == ActivityOptions.RejectedStatus ? "rejected" : "pending";
+}
+
+<section class="page-heading compact">
+    <p class="eyebrow">Record</p>
+    <h1>@Model.ActivityName</h1>
+    <p>@Model.StudentNo · @Model.StudentName · @Model.Category</p>
+</section>
+
+<section class="panel-card">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">Status</p>
+            <h2><span class="status-badge @statusClass">@Model.Status</span> @Model.Credits.ToString("0.0") 学分</h2>
+        </div>
+        <div class="hero-actions m-0">
+            <a class="btn btn-ink" asp-action="Review" asp-route-id="@Model.Id">审核授分</a>
+            <a class="btn btn-paper" asp-action="Edit" asp-route-id="@Model.Id">编辑</a>
+            <a class="btn btn-paper" asp-action="Index">返回</a>
+        </div>
+    </div>
+    <div class="detail-grid">
+        <div class="detail-tile"><span class="detail-label">学生</span><strong>@Model.StudentName</strong><small>@Model.StudentNo · @Model.ClassName</small></div>
+        <div class="detail-tile"><span class="detail-label">活动类别</span><strong>@Model.Category</strong><small>@Model.Level</small></div>
+        <div class="detail-tile"><span class="detail-label">组织单位</span><strong>@Model.Organizer</strong></div>
+        <div class="detail-tile"><span class="detail-label">活动日期</span><strong>@Model.StartDate?.ToString("yyyy-MM-dd") - @Model.EndDate?.ToString("yyyy-MM-dd")</strong></div>
+        <div class="detail-tile"><span class="detail-label">活动时长</span><strong>@Model.Hours.ToString("0.##") 小时</strong></div>
+        <div class="detail-tile"><span class="detail-label">提交时间</span><strong>@Model.SubmittedAt.ToString("yyyy-MM-dd HH:mm")</strong></div>
+    </div>
+</section>
+
+<section class="two-column mt-4">
+    <article class="panel-card readable-card">
+        <p class="eyebrow">Description</p>
+        <h2>活动说明</h2>
+        <p>@Model.Description</p>
+        <p><strong>证明材料：</strong>@Model.Evidence</p>
+    </article>
+    <article class="panel-card readable-card">
+        <p class="eyebrow">Review</p>
+        <h2>审核意见</h2>
+        <p>@(string.IsNullOrWhiteSpace(Model.ReviewOpinion) ? "尚未填写审核意见。" : Model.ReviewOpinion)</p>
+        <p><strong>审核时间：</strong>@(Model.ReviewedAt?.ToString("yyyy-MM-dd HH:mm") ?? "未审核")</p>
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('确认删除该登记记录？');">
+            @Html.AntiForgeryToken()
+            <button class="btn btn-danger-soft" type="submit">删除记录</button>
+        </form>
+    </article>
+</section>

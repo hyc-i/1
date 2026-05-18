@@ -1,0 +1,74 @@
+﻿@model DashboardStats
+@{
+    ViewData["Title"] = "系统总览";
+}
+
+<section class="hero-board">
+    <div class="hero-copy">
+        <p class="eyebrow">Second Classroom Ledger</p>
+        <h1>把学生成长轨迹整理成可审核、可统计、可追溯的第二课堂档案。</h1>
+        <p class="hero-text">系统覆盖学生基础信息维护、第二课堂登记、审核授分与管理员综合查询，数据库随项目自动初始化。</p>
+        <div class="hero-actions">
+            <a class="btn btn-ink" asp-controller="ActivityRecords" asp-action="Create">登记活动</a>
+            <a class="btn btn-paper" asp-controller="Students" asp-action="Import">导入学生</a>
+        </div>
+    </div>
+    <div class="hero-ledger">
+        <span>本学期累计学分</span>
+        <strong>@Model.TotalCredits.ToString("0.0")</strong>
+        <small>@Model.ApprovedCount 条记录已通过审核</small>
+    </div>
+</section>
+
+<section class="metric-grid">
+    <article class="metric-card"><span>学生档案</span><strong>@Model.StudentCount</strong><small>支持增删改查与批量导入</small></article>
+    <article class="metric-card"><span>登记记录</span><strong>@Model.RecordCount</strong><small>覆盖社会活动、竞赛、证书等类别</small></article>
+    <article class="metric-card urgent"><span>待审核</span><strong>@Model.PendingCount</strong><small>管理员可审核并授予学分</small></article>
+    <article class="metric-card"><span>已通过</span><strong>@Model.ApprovedCount</strong><small>自动汇总到学生第二课堂档案</small></article>
+</section>
+
+<div class="two-column">
+    <section class="panel-card">
+        <div class="panel-title">
+            <div>
+                <p class="eyebrow">Category</p>
+                <h2>类别统计</h2>
+            </div>
+            <a asp-controller="Admin" asp-action="Index">查看学生汇总</a>
+        </div>
+        <div class="category-stack">
+            @foreach (var item in Model.CategoryStats)
+            {
+                <div class="category-row">
+                    <span>@item.Category</span>
+                    <div class="category-bar"><i style="width:@Math.Min(item.Count * 18, 100)%"></i></div>
+                    <strong>@item.Count 条 / @item.Credits.ToString("0.0") 分</strong>
+                </div>
+            }
+        </div>
+    </section>
+
+    <section class="panel-card dark-panel">
+        <div class="panel-title">
+            <div>
+                <p class="eyebrow">Recent</p>
+                <h2>最近登记</h2>
+            </div>
+            <a asp-controller="ActivityRecords" asp-action="Index">全部记录</a>
+        </div>
+        <div class="timeline-list">
+            @foreach (var item in Model.RecentActivities)
+            {
+                var statusClass = item.Status == ActivityOptions.ApprovedStatus ? "approved" : item.Status == ActivityOptions.RejectedStatus ? "rejected" : "pending";
+                <a class="timeline-item" asp-controller="ActivityRecords" asp-action="Details" asp-route-id="@item.Id">
+                    <span class="status-dot @statusClass"></span>
+                    <div>
+                        <strong>@item.ActivityName</strong>
+                        <small>@item.StudentName · @item.Category · @item.SubmittedAt.ToString("MM-dd HH:mm")</small>
+                    </div>
+                    <em>@item.Status</em>
+                </a>
+            }
+        </div>
+    </section>
+</div>

@@ -1,0 +1,23 @@
+@model Student
+@{
+    ViewData["Title"] = "新增学生档案";
+}
+
+<section class="page-heading compact">
+    <p class="eyebrow">Student</p>
+    <h1>新增学生档案</h1>
+    <p>建立第二课堂登记前的基础数据，学号作为唯一识别字段。</p>
+</section>
+
+<form asp-action="Create" method="post" class="form-card">
+    @Html.AntiForgeryToken()
+    <partial name="_StudentForm" model="Model" />
+    <div class="hero-actions">
+        <button class="btn btn-ink" type="submit">保存学生</button>
+        <a class="btn btn-paper" asp-action="Index">返回列表</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

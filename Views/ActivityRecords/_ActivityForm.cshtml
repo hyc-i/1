@@ -1,0 +1,75 @@
+@model ActivityRecord
+@{
+    var students = ViewBag.Students as IEnumerable<Student> ?? new List<Student>();
+    var categories = ViewBag.Categories as IEnumerable<string> ?? ActivityOptions.Categories;
+    var levels = ViewBag.Levels as IEnumerable<string> ?? ActivityOptions.Levels;
+}
+
+<input asp-for="Id" type="hidden" />
+<div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+<div class="form-grid">
+    <div>
+        <label asp-for="StudentId" class="form-label"></label>
+        <select asp-for="StudentId" class="form-select">
+            <option value="">请选择学生</option>
+            @foreach (var student in students)
+            {
+                <option value="@student.Id" selected="@(student.Id == Model.StudentId)">@student.StudentNo · @student.Name · @student.ClassName</option>
+            }
+        </select>
+        <span asp-validation-for="StudentId"></span>
+    </div>
+    <div>
+        <label asp-for="Category" class="form-label"></label>
+        <select asp-for="Category" class="form-select">
+            <option value="">请选择类别</option>
+            @foreach (var category in categories)
+            {
+                <option value="@category" selected="@(category == Model.Category)">@category</option>
+            }
+        </select>
+        <span asp-validation-for="Category"></span>
+    </div>
+    <div class="wide">
+        <label asp-for="ActivityName" class="form-label"></label>
+        <input asp-for="ActivityName" class="form-control" placeholder="如：大学生创新创业训练计划" />
+        <span asp-validation-for="ActivityName"></span>
+    </div>
+    <div>
+        <label asp-for="Level" class="form-label"></label>
+        <select asp-for="Level" class="form-select">
+            <option value="">请选择级别</option>
+            @foreach (var level in levels)
+            {
+                <option value="@level" selected="@(level == Model.Level)">@level</option>
+            }
+        </select>
+    </div>
+    <div>
+        <label asp-for="Organizer" class="form-label"></label>
+        <input asp-for="Organizer" class="form-control" placeholder="组织或颁发单位" />
+    </div>
+    <div>
+        <label asp-for="StartDate" class="form-label"></label>
+        <input asp-for="StartDate" class="form-control" />
+    </div>
+    <div>
+        <label asp-for="EndDate" class="form-label"></label>
+        <input asp-for="EndDate" class="form-control" />
+        <span asp-validation-for="EndDate"></span>
+    </div>
+    <div>
+        <label asp-for="Hours" class="form-label"></label>
+        <input asp-for="Hours" class="form-control" placeholder="活动小时数" />
+        <span asp-validation-for="Hours"></span>
+    </div>
+    <div>
+        <label asp-for="Evidence" class="form-label"></label>
+        <input asp-for="Evidence" class="form-control" placeholder="证书编号、证明名称或材料说明" />
+    </div>
+    <div class="wide">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control" rows="4" placeholder="填写活动内容、个人承担工作与成果"></textarea>
+        <span asp-validation-for="Description"></span>
+    </div>
+</div>

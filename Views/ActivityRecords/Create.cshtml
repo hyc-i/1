@@ -1,0 +1,23 @@
+@model ActivityRecord
+@{
+    ViewData["Title"] = "登记第二课堂记录";
+}
+
+<section class="page-heading compact">
+    <p class="eyebrow">Register</p>
+    <h1>登记第二课堂活动</h1>
+    <p>学生提交社会活动、科研竞赛、评奖评优、认证考试、奖励表彰等档案信息，默认进入待审核状态。</p>
+</section>
+
+<form asp-action="Create" method="post" class="form-card">
+    @Html.AntiForgeryToken()
+    <partial name="_ActivityForm" model="Model" />
+    <div class="hero-actions">
+        <button class="btn btn-ink" type="submit">提交登记</button>
+        <a class="btn btn-paper" asp-action="Index">返回记录</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

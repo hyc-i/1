@@ -1,0 +1,50 @@
+@model StudentImportResult
+@{
+    ViewData["Title"] = "学生导入";
+}
+
+<section class="page-heading compact">
+    <p class="eyebrow">Import</p>
+    <h1>批量导入学生名单</h1>
+    <p>支持 CSV 或制表符文本。字段顺序：学号、姓名、性别、学院、专业、班级、电话、邮箱；已存在学号会自动更新。</p>
+</section>
+
+<form asp-action="Import" method="post" enctype="multipart/form-data" class="form-card">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+    <div class="form-grid">
+        <div class="wide">
+            <label class="form-label" for="file">选择导入文件</label>
+            <input class="form-control" type="file" id="file" name="file" accept=".csv,.txt" />
+        </div>
+        <div class="wide detail-tile">
+            <span class="detail-label">示例</span>
+            <strong>2024010106,王星河,男,数据学院,软件工程,软工2402,13800000006,2024010106@example.edu</strong>
+        </div>
+    </div>
+    <div class="hero-actions">
+        <button class="btn btn-ink" type="submit">开始导入</button>
+        <a class="btn btn-paper" asp-action="Index">返回学生档案</a>
+    </div>
+</form>
+
+@if (Model.Inserted + Model.Updated + Model.Skipped > 0 || Model.Messages.Count > 0)
+{
+    <section class="panel-card mt-4">
+        <div class="panel-title"><div><p class="eyebrow">Result</p><h2>导入结果</h2></div></div>
+        <div class="metric-grid">
+            <article class="metric-card"><span>新增</span><strong>@Model.Inserted</strong></article>
+            <article class="metric-card"><span>更新</span><strong>@Model.Updated</strong></article>
+            <article class="metric-card urgent"><span>跳过</span><strong>@Model.Skipped</strong></article>
+        </div>
+        @if (Model.Messages.Count > 0)
+        {
+            <ul class="check-list">
+                @foreach (var message in Model.Messages)
+                {
+                    <li>@message</li>
+                }
+            </ul>
+        }
+    </section>
+}

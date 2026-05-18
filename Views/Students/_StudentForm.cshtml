@@ -1,0 +1,45 @@
+@model Student
+
+<input asp-for="Id" type="hidden" />
+<div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+<div class="form-grid">
+    <div>
+        <label asp-for="StudentNo" class="form-label"></label>
+        <input asp-for="StudentNo" class="form-control" placeholder="如：2024010101" />
+        <span asp-validation-for="StudentNo"></span>
+    </div>
+    <div>
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" placeholder="学生姓名" />
+        <span asp-validation-for="Name"></span>
+    </div>
+    <div>
+        <label asp-for="Gender" class="form-label"></label>
+        <select asp-for="Gender" class="form-select">
+            <option value="">请选择</option>
+            <option>男</option>
+            <option>女</option>
+        </select>
+    </div>
+    <div>
+        <label asp-for="College" class="form-label"></label>
+        <input asp-for="College" class="form-control" placeholder="如：数据学院" />
+    </div>
+    <div>
+        <label asp-for="Major" class="form-label"></label>
+        <input asp-for="Major" class="form-control" placeholder="如：软件工程" />
+    </div>
+    <div>
+        <label asp-for="ClassName" class="form-label"></label>
+        <input asp-for="ClassName" class="form-control" placeholder="如：软工2402" />
+    </div>
+    <div>
+        <label asp-for="Phone" class="form-label"></label>
+        <input asp-for="Phone" class="form-control" placeholder="联系电话" />
+    </div>
+    <div>
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" placeholder="邮箱地址" />
+        <span asp-validation-for="Email"></span>
+    </div>
+</div>

@@ -1,0 +1,59 @@
+@model ReviewActivityRecordViewModel
+@{
+    ViewData["Title"] = "审核登记记录";
+    var record = Model.Record!;
+}
+
+<section class="page-heading compact">
+    <p class="eyebrow">Review</p>
+    <h1>审核并授予第二课堂学分</h1>
+    <p>@record.StudentNo · @record.StudentName · @record.ActivityName</p>
+</section>
+
+<div class="two-column">
+    <section class="panel-card readable-card">
+        <p class="eyebrow">Material</p>
+        <h2>登记材料</h2>
+        <p><strong>类别：</strong>@record.Category / @record.Level</p>
+        <p><strong>组织单位：</strong>@record.Organizer</p>
+        <p><strong>活动时间：</strong>@record.StartDate?.ToString("yyyy-MM-dd") - @record.EndDate?.ToString("yyyy-MM-dd")，@record.Hours.ToString("0.##") 小时</p>
+        <p><strong>证明材料：</strong>@record.Evidence</p>
+        <p>@record.Description</p>
+    </section>
+
+    <form asp-action="Review" asp-route-id="@Model.Id" method="post" class="form-card">
+        @Html.AntiForgeryToken()
+        <input asp-for="Id" type="hidden" />
+        <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+        <div class="form-grid">
+            <div class="wide">
+                <label asp-for="Status" class="form-label"></label>
+                <select asp-for="Status" class="form-select">
+                    @foreach (var status in ActivityOptions.Statuses)
+                    {
+                        <option value="@status" selected="@(status == Model.Status)">@status</option>
+                    }
+                </select>
+                <span asp-validation-for="Status"></span>
+            </div>
+            <div class="wide">
+                <label asp-for="Credits" class="form-label"></label>
+                <input asp-for="Credits" class="form-control" placeholder="通过时填写认定学分，未通过会自动计 0 分" />
+                <span asp-validation-for="Credits"></span>
+            </div>
+            <div class="wide">
+                <label asp-for="ReviewOpinion" class="form-label"></label>
+                <textarea asp-for="ReviewOpinion" class="form-control" rows="5" placeholder="填写审核依据、材料是否完整及学分认定说明"></textarea>
+                <span asp-validation-for="ReviewOpinion"></span>
+            </div>
+        </div>
+        <div class="hero-actions">
+            <button class="btn btn-ink" type="submit">保存审核结果</button>
+            <a class="btn btn-paper" asp-action="Details" asp-route-id="@Model.Id">返回详情</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

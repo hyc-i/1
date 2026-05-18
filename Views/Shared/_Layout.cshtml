@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - 学生第二课堂登记管理系统</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SecondClassroomManager.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="ambient-grid"></div>
+    <header class="campus-header">
+        <nav class="navbar navbar-expand-lg campus-nav">
+            <div class="container-fluid px-4 px-xl-5">
+                <a class="navbar-brand brand-mark" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="brand-seal">Ⅱ</span>
+                    <span>
+                        <strong>学生第二课堂</strong>
+                        <small>登记管理系统</small>
+                    </span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="切换导航">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav ms-auto nav-pills gap-2">
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">总览</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Students" asp-action="Index">学生档案</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="ActivityRecords" asp-action="Index">活动登记</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="ActivityRecords" asp-action="Index" asp-route-status="待审核">审核入口</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Index">管理员查询</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="page-shell" role="main">
+        @if (TempData["Success"] is string success)
+        {
+            <div class="flash-card">@success</div>
+        }
+        @RenderBody()
+    </main>
+
+    <footer class="course-footer">
+        <span>2025-2026 学年第 2 学期 · .NET网络开发技术课程设计</span>
+        <a asp-area="" asp-controller="Home" asp-action="Privacy">配置与使用说明</a>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

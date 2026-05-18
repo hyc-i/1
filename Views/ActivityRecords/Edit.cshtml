@@ -1,0 +1,24 @@
+@model ActivityRecord
+@{
+    ViewData["Title"] = "编辑登记记录";
+}
+
+<section class="page-heading compact">
+    <p class="eyebrow">Record</p>
+    <h1>编辑第二课堂记录</h1>
+    <p>修改登记信息不会自动改变审核状态，管理员可在详情页重新审核。</p>
+</section>
+
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="form-card">
+    @Html.AntiForgeryToken()
+    <partial name="_ActivityForm" model="Model" />
+    <div class="hero-actions">
+        <button class="btn btn-ink" type="submit">保存修改</button>
+        <a class="btn btn-paper" asp-action="Details" asp-route-id="@Model.Id">查看详情</a>
+        <a class="btn btn-paper" asp-action="Index">返回记录</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
