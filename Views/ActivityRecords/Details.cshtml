@@ -2,6 +2,8 @@
 @{
     ViewData["Title"] = "登记记录详情";
     var statusClass = Model.Status == ActivityOptions.ApprovedStatus ? "approved" : Model.Status == ActivityOptions.RejectedStatus ? "rejected" : "pending";
+    var isAdmin = User.IsInRole("Admin");
+    var canEdit = isAdmin || User.IsInRole("Student") && Model.Status == ActivityOptions.PendingStatus;
 }
 
 <section class="page-heading compact">
@@ -17,9 +19,20 @@
             <h2><span class="status-badge @statusClass">@Model.Status</span> @Model.Credits.ToString("0.0") 学分</h2>
         </div>
         <div class="hero-actions m-0">
-            <a class="btn btn-ink" asp-action="Review" asp-route-id="@Model.Id">审核授分</a>
-            <a class="btn btn-paper" asp-action="Edit" asp-route-id="@Model.Id">编辑</a>
-            <a class="btn btn-paper" asp-action="Index">返回</a>
+            @if (isAdmin)
+            {
+                <a class="btn btn-ink" asp-action="Review" asp-route-id="@Model.Id">审核授分</a>
+                <a class="btn btn-paper" asp-action="Edit" asp-route-id="@Model.Id">编辑</a>
+                <a class="btn btn-paper" asp-action="Index">返回记录</a>
+            }
+            else
+            {
+                @if (canEdit)
+                {
+                    <a class="btn btn-paper" asp-action="Edit" asp-route-id="@Model.Id">编辑</a>
+                }
+                <a class="btn btn-paper" asp-controller="StudentPortal" asp-action="Index">返回学生主页</a>
+            }
         </div>
     </div>
     <div class="detail-grid">
@@ -32,7 +45,7 @@
     </div>
 </section>
 
-<section class="two-column mt-4">
+<section class="two-column detail-review-grid mt-4">
     <article class="panel-card readable-card">
         <p class="eyebrow">Description</p>
         <h2>活动说明</h2>
@@ -44,10 +57,13 @@
         <h2>审核意见</h2>
         <p>@(string.IsNullOrWhiteSpace(Model.ReviewOpinion) ? "尚未填写审核意见。" : Model.ReviewOpinion)</p>
         <p><strong>审核时间：</strong>@(Model.ReviewedAt?.ToString("yyyy-MM-dd HH:mm") ?? "未审核")</p>
-        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('确认删除该登记记录？');">
-            @Html.AntiForgeryToken()
-            <button class="btn btn-danger-soft" type="submit">删除记录</button>
-        </form>
+        @if (isAdmin)
+        {
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('确认删除该登记记录？');">
+                @Html.AntiForgeryToken()
+                <button class="btn btn-danger-soft" type="submit">删除记录</button>
+            </form>
+        }
     </article>
 </section>
 

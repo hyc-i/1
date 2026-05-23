@@ -16,8 +16,8 @@
                 <a class="navbar-brand brand-mark" asp-area="" asp-controller="Home" asp-action="Index">
                     <span class="brand-seal">Ⅱ</span>
                     <span>
-                        <strong>学生第二课堂</strong>
-                        <small>登记管理系统</small>
+                        <strong>第二课堂</strong>
+                        <small>管理系统</small>
                     </span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="切换导航">
@@ -25,11 +25,33 @@
                 </button>
                 <div class="collapse navbar-collapse" id="mainNav">
                     <ul class="navbar-nav ms-auto nav-pills gap-2">
-                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">总览</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Students" asp-action="Index">学生档案</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="ActivityRecords" asp-action="Index">活动登记</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="ActivityRecords" asp-action="Index" asp-route-status="待审核">审核入口</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Index">管理员查询</a></li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">管理员总览</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Students" asp-action="Index">学生档案</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="ActivityRecords" asp-action="Index">活动记录</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="ActivityRecords" asp-action="Index" asp-route-status="待审核">审核入口</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Index">管理员查询</a></li>
+                        }
+                        else if (User.IsInRole("Student"))
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="StudentPortal" asp-action="Index">学生主页</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="ActivityRecords" asp-action="Create">登记活动</a></li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="StudentLogin">学生登录</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="AdminLogin">管理员登录</a></li>
+                        }
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                                    @Html.AntiForgeryToken()
+                                    <button class="nav-link border-0 bg-transparent" type="submit">退出 @User.Identity.Name</button>
+                                </form>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>

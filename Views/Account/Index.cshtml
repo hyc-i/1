@@ -1,0 +1,33 @@
+@{
+    ViewData["Title"] = "登录入口";
+}
+
+<section class="login-landing">
+    <div class="login-landing-copy">
+        <p class="eyebrow">Second Classroom</p>
+        <h1>学生第二课堂登记管理系统</h1>
+        <p class="login-summary">学生提交第二课堂活动并查看个人审核结果；管理员维护学生档案、审核授分并导出统计数据。</p>
+        <div class="login-feature-strip">
+            <span><strong>01</strong>活动登记</span>
+            <span><strong>02</strong>审核授分</span>
+            <span><strong>03</strong>统计导出</span>
+        </div>
+        <div class="login-account-tips">
+            <span>学生：学号 + 手机号</span>
+            <span>管理员：admin / 123456</span>
+        </div>
+    </div>
+
+    <div class="login-entry-list">
+        <a class="login-entry-card" asp-action="StudentLogin">
+            <span>学生端</span>
+            <strong>学生登录</strong>
+            <small>登记活动、查看审核状态和个人学分</small>
+        </a>
+        <a class="login-entry-card admin" asp-action="AdminLogin">
+            <span>管理员端</span>
+            <strong>管理员登录</strong>
+            <small>维护档案、审核记录、导出统计数据</small>
+        </a>
+    </div>
+</section>

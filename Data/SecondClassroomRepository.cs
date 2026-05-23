@@ -69,6 +69,16 @@ ORDER BY ClassName, StudentNo;";
         return reader.Read() ? MapStudent(reader) : null;
     }
 
+    public Student? GetStudentByStudentNo(string studentNo)
+    {
+        using var connection = OpenConnection();
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT * FROM Students WHERE StudentNo = @StudentNo;";
+        Add(command, "@StudentNo", studentNo.Trim());
+        using var reader = command.ExecuteReader();
+        return reader.Read() ? MapStudent(reader) : null;
+    }
+
     public bool StudentNoExists(string studentNo, int? exceptId = null)
     {
         using var connection = OpenConnection();
@@ -202,7 +212,6 @@ VALUES (@StudentId, @Category, @ActivityName, @Level, @Organizer, @StartDate, @E
 SELECT last_insert_rowid();";
         AddActivityParameters(command, record);
         Add(command, "@Status", ActivityOptions.PendingStatus);
-        Add(command, "@Credits", 0);
         Add(command, "@ReviewOpinion", string.Empty);
         Add(command, "@SubmittedAt", ToDateTimeString(DateTime.Now));
         return Convert.ToInt32(command.ExecuteScalar(), CultureInfo.InvariantCulture);
@@ -222,6 +231,7 @@ SET StudentId = @StudentId,
     StartDate = @StartDate,
     EndDate = @EndDate,
     Hours = @Hours,
+    Credits = @Credits,
     Description = @Description,
     Evidence = @Evidence
 WHERE Id = @Id;";
@@ -240,7 +250,7 @@ WHERE Id = @Id;";
             return;
         }
 
-        var newCredits = status == ActivityOptions.ApprovedStatus ? credits : 0;
+        var newCredits = status == ActivityOptions.RejectedStatus ? 0 : credits;
         var normalizedReviewOpinion = reviewOpinion.Trim();
         var reviewedAt = ToDateTimeString(DateTime.Now);
 
@@ -514,6 +524,7 @@ LIMIT 6;";
         Add(command, "@StartDate", ToDateString(record.StartDate));
         Add(command, "@EndDate", ToDateString(record.EndDate));
         Add(command, "@Hours", record.Hours);
+        Add(command, "@Credits", record.Credits);
         Add(command, "@Description", record.Description.Trim());
         Add(command, "@Evidence", record.Evidence.Trim());
     }

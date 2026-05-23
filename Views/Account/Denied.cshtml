@@ -1,0 +1,14 @@
+@{
+    ViewData["Title"] = "无权访问";
+}
+
+<section class="page-heading compact">
+    <p class="eyebrow">Access Denied</p>
+    <h1>当前账号无权访问该页面</h1>
+    <p>请返回对应身份的首页，或切换账号后重试。</p>
+</section>
+
+<div class="hero-actions">
+    <a class="btn btn-ink" asp-controller="Home" asp-action="Index">返回首页</a>
+    <a class="btn btn-paper" asp-controller="Account" asp-action="Index">切换登录入口</a>
+</div>

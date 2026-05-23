@@ -1,8 +1,10 @@
 @model ActivityRecord
 @{
     var students = ViewBag.Students as IEnumerable<Student> ?? new List<Student>();
+    var currentStudent = ViewBag.CurrentStudent as Student;
     var categories = ViewBag.Categories as IEnumerable<string> ?? ActivityOptions.Categories;
     var levels = ViewBag.Levels as IEnumerable<string> ?? ActivityOptions.Levels;
+    var canEditCredits = ViewBag.CanEditCredits as bool? ?? false;
 }
 
 <input asp-for="Id" type="hidden" />
@@ -10,13 +12,21 @@
 <div class="form-grid">
     <div>
         <label asp-for="StudentId" class="form-label"></label>
-        <select asp-for="StudentId" class="form-select">
-            <option value="">请选择学生</option>
-            @foreach (var student in students)
-            {
-                <option value="@student.Id" selected="@(student.Id == Model.StudentId)">@student.StudentNo · @student.Name · @student.ClassName</option>
-            }
-        </select>
+        @if (currentStudent != null)
+        {
+            <input asp-for="StudentId" type="hidden" value="@currentStudent.Id" />
+            <div class="form-control">@currentStudent.StudentNo · @currentStudent.Name · @currentStudent.ClassName</div>
+        }
+        else
+        {
+            <select asp-for="StudentId" class="form-select">
+                <option value="">请选择学生</option>
+                @foreach (var student in students)
+                {
+                    <option value="@student.Id" selected="@(student.Id == Model.StudentId)">@student.StudentNo · @student.Name · @student.ClassName</option>
+                }
+            </select>
+        }
         <span asp-validation-for="StudentId"></span>
     </div>
     <div>
@@ -62,6 +72,20 @@
         <label asp-for="Hours" class="form-label"></label>
         <input asp-for="Hours" class="form-control" placeholder="活动小时数" />
         <span asp-validation-for="Hours"></span>
+    </div>
+    <div>
+        <label asp-for="Credits" class="form-label"></label>
+        @if (canEditCredits)
+        {
+            <input asp-for="Credits" class="form-control" placeholder="填写申请学分，如 1.0" />
+            <span asp-validation-for="Credits"></span>
+        }
+        else
+        {
+            <input asp-for="Credits" type="hidden" />
+            <div class="form-control readonly-field">@Model.Credits.ToString("0.##") 学分</div>
+            <small>学分只能在学生待审核申请或管理员审核授分时调整。</small>
+        }
     </div>
     <div>
         <label asp-for="Evidence" class="form-label"></label>

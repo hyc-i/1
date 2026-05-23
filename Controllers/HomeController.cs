@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using SecondClassroomManager.Data;
 using SecondClassroomManager.Models;
@@ -16,6 +16,16 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
+        if (User.Identity?.IsAuthenticated != true)
+        {
+            return RedirectToAction("Index", "Account");
+        }
+
+        if (User.IsInRole("Student"))
+        {
+            return RedirectToAction("Index", "StudentPortal");
+        }
+
         return View(_repository.GetDashboardStats());
     }
 

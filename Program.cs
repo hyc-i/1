@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using SecondClassroomManager.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,14 @@ var databaseOptions = new DatabaseOptions($"Data Source={databasePath}");
 builder.Services.AddSingleton(databaseOptions);
 builder.Services.AddSingleton<DatabaseInitializer>();
 builder.Services.AddScoped<SecondClassroomRepository>();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account";
+        options.AccessDeniedPath = "/Account/Denied";
+        options.ExpireTimeSpan = TimeSpan.FromHours(2);
+    });
+builder.Services.AddAuthorization();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -30,6 +39,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

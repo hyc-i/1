@@ -1,0 +1,36 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "管理员登录";
+}
+
+<section class="page-heading compact login-panel-width">
+    <p class="eyebrow">Admin Login</p>
+    <h1>管理员登录</h1>
+    <p>管理员登录后可维护学生档案、审核活动记录、查看统计和导出数据。</p>
+</section>
+
+<form asp-action="AdminLogin" method="post" class="form-card login-form-card login-panel-width">
+    @Html.AntiForgeryToken()
+    <input asp-for="ReturnUrl" type="hidden" />
+    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+    <div class="form-grid">
+        <div>
+            <label asp-for="Username" class="form-label">管理员账号</label>
+            <input asp-for="Username" class="form-control" placeholder="admin" />
+            <span asp-validation-for="Username"></span>
+        </div>
+        <div>
+            <label asp-for="Password" class="form-label">管理员密码</label>
+            <input asp-for="Password" class="form-control" placeholder="123456" />
+            <span asp-validation-for="Password"></span>
+        </div>
+    </div>
+    <div class="hero-actions">
+        <button class="btn btn-ink" type="submit">进入管理员端</button>
+        <a class="btn btn-paper" asp-action="Index">返回登录入口</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

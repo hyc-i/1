@@ -6,7 +6,7 @@
 <section class="page-heading compact">
     <p class="eyebrow">Record</p>
     <h1>编辑第二课堂记录</h1>
-    <p>修改登记信息不会自动改变审核状态，管理员可在详情页重新审核。</p>
+    <p>学生只能修改待审核申请；已审核记录和学分认定由管理员通过审核授分流程处理。</p>
 </section>
 
 <form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="form-card">
@@ -15,7 +15,14 @@
     <div class="hero-actions">
         <button class="btn btn-ink" type="submit">保存修改</button>
         <a class="btn btn-paper" asp-action="Details" asp-route-id="@Model.Id">查看详情</a>
-        <a class="btn btn-paper" asp-action="Index">返回记录</a>
+        @if (User.IsInRole("Student"))
+        {
+            <a class="btn btn-paper" asp-controller="StudentPortal" asp-action="Index">返回学生主页</a>
+        }
+        else
+        {
+            <a class="btn btn-paper" asp-action="Index">返回记录</a>
+        }
     </div>
 </form>
 

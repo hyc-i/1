@@ -31,6 +31,7 @@ public class DatabaseInitializer
         }
 
         EnsureGeneratedSampleData(connection);
+        RepairActivityRecordDefaults(connection);
     }
 
     private SqliteConnection OpenConnection()
@@ -77,6 +78,32 @@ public class DatabaseInitializer
         }
     }
 
+    private static void RepairActivityRecordDefaults(SqliteConnection connection)
+    {
+        using var command = connection.CreateCommand();
+        command.CommandText = @"
+UPDATE ActivityRecords
+SET Credits = CASE
+    WHEN Category = '科研与竞赛' THEN 1.5
+    WHEN Category = '认证考试' THEN 1.0
+    WHEN Category = '评奖评优' THEN 0.8
+    WHEN Category = '奖励表彰' THEN 1.5
+    WHEN Category = '创新创业' THEN 1.5
+    WHEN Category = '志愿服务' THEN 1.0
+    ELSE 1.0
+END
+WHERE Status = '待审核' AND Credits <= 0;
+
+UPDATE ActivityRecords
+SET Hours = CASE
+    WHEN Category IN ('科研与竞赛', '创新创业') THEN 8
+    WHEN Category IN ('社会活动', '志愿服务') THEN 4
+    ELSE 2
+END
+WHERE Hours <= 0;";
+        command.ExecuteNonQuery();
+    }
+
     private static void SeedStudents(SqliteConnection connection)
     {
         using var command = connection.CreateCommand();
@@ -97,11 +124,11 @@ INSERT INTO Students (StudentNo, Name, Gender, College, Major, ClassName, Phone,
 INSERT INTO ActivityRecords (StudentId, Category, ActivityName, Level, Organizer, StartDate, EndDate, Hours, Description, Evidence, Status, Credits, ReviewOpinion, SubmittedAt, ReviewedAt)
 SELECT Id, '科研与竞赛', '大学生数学建模校赛', '校级', '教务处', '2026-03-12', '2026-03-14', 18, '参与建模、论文撰写与答辩展示。', '获奖证书编号 MCM-2026-0314', '已通过', 1.5, '材料完整，按校级竞赛二等奖认定。', '2026-03-15 09:21:00', '2026-03-16 14:10:00' FROM Students WHERE StudentNo = '2024010101';
 INSERT INTO ActivityRecords (StudentId, Category, ActivityName, Level, Organizer, StartDate, EndDate, Hours, Description, Evidence, Status, Credits, ReviewOpinion, SubmittedAt, ReviewedAt)
-SELECT Id, '社会活动', '社区数字助老志愿服务', '市级', '青年志愿者协会', '2026-04-05', '2026-04-05', 6, '为社区老人提供手机支付与政务应用辅导。', '志愿服务证明 6 小时', '待审核', 0, '', '2026-04-06 11:30:00', NULL FROM Students WHERE StudentNo = '2024010102';
+SELECT Id, '社会活动', '社区数字助老志愿服务', '市级', '青年志愿者协会', '2026-04-05', '2026-04-05', 6, '为社区老人提供手机支付与政务应用辅导。', '志愿服务证明 6 小时', '待审核', 1.0, '', '2026-04-06 11:30:00', NULL FROM Students WHERE StudentNo = '2024010102';
 INSERT INTO ActivityRecords (StudentId, Category, ActivityName, Level, Organizer, StartDate, EndDate, Hours, Description, Evidence, Status, Credits, ReviewOpinion, SubmittedAt, ReviewedAt)
-SELECT Id, '认证考试', '全国计算机等级考试二级 Python', '国家级', '教育部教育考试院', '2026-03-30', '2026-03-30', 0, '通过全国计算机等级考试二级 Python。', '证书编号 NCRE-PY-260330', '已通过', 1.0, '证书信息可核验。', '2026-04-02 08:15:00', '2026-04-03 10:12:00' FROM Students WHERE StudentNo = '2024010201';
+SELECT Id, '认证考试', '全国计算机等级考试二级 Python', '国家级', '教育部教育考试院', '2026-03-30', '2026-03-30', 2, '通过全国计算机等级考试二级 Python。', '证书编号 NCRE-PY-260330', '已通过', 1.0, '证书信息可核验。', '2026-04-02 08:15:00', '2026-04-03 10:12:00' FROM Students WHERE StudentNo = '2024010201';
 INSERT INTO ActivityRecords (StudentId, Category, ActivityName, Level, Organizer, StartDate, EndDate, Hours, Description, Evidence, Status, Credits, ReviewOpinion, SubmittedAt, ReviewedAt)
-SELECT Id, '评奖评优', '学院优秀学生干部', '院级', '数据学院', '2026-05-06', '2026-05-06', 0, '担任班级学习委员，组织学风建设活动。', '学院公示截图', '待审核', 0, '', '2026-05-07 17:20:00', NULL FROM Students WHERE StudentNo = '2024010202';
+SELECT Id, '评奖评优', '学院优秀学生干部', '院级', '数据学院', '2026-05-06', '2026-05-06', 2, '担任班级学习委员，组织学风建设活动。', '学院公示截图', '待审核', 0.8, '', '2026-05-07 17:20:00', NULL FROM Students WHERE StudentNo = '2024010202';
 INSERT INTO ActivityRecords (StudentId, Category, ActivityName, Level, Organizer, StartDate, EndDate, Hours, Description, Evidence, Status, Credits, ReviewOpinion, SubmittedAt, ReviewedAt)
 SELECT Id, '奖励表彰', '蓝桥杯软件赛省赛三等奖', '省级', '工业和信息化人才交流中心', '2026-04-20', '2026-04-20', 8, '参加程序设计竞赛并获得省赛三等奖。', '获奖证书扫描件', '已通过', 2.0, '按省级竞赛三等奖认定。', '2026-04-25 13:45:00', '2026-04-26 09:40:00' FROM Students WHERE StudentNo = '2024010301';";
         command.ExecuteNonQuery();
@@ -165,8 +192,8 @@ VALUES (@StudentNo, @Name, @Gender, @College, @Major, @ClassName, @Phone, @Email
         {
             new ActivityTemplate("社会活动", "社区数字助老志愿服务", "市级", "青年志愿者协会", 6, 1.0, "参与社区便民服务，为居民提供数字应用指导并完成志愿服务记录。"),
             new ActivityTemplate("科研与竞赛", "大学生数学建模竞赛", "省级", "教务处", 18, 2.0, "完成问题建模、数据分析、论文撰写和答辩准备。"),
-            new ActivityTemplate("评奖评优", "学院优秀学生干部", "院级", "数据学院", 0, 0.8, "承担班级事务组织与学风建设工作，材料经班级和学院公示。"),
-            new ActivityTemplate("认证考试", "全国计算机等级考试二级", "国家级", "教育部教育考试院", 0, 1.0, "通过认证考试，证书编号可在线核验。"),
+            new ActivityTemplate("评奖评优", "学院优秀学生干部", "院级", "数据学院", 2, 0.8, "承担班级事务组织与学风建设工作，材料经班级和学院公示。"),
+            new ActivityTemplate("认证考试", "全国计算机等级考试二级", "国家级", "教育部教育考试院", 2, 1.0, "通过认证考试，证书编号可在线核验。"),
             new ActivityTemplate("奖励表彰", "蓝桥杯软件赛获奖", "省级", "工业和信息化人才交流中心", 8, 2.0, "参加程序设计竞赛并获得省赛奖项。"),
             new ActivityTemplate("志愿服务", "校园迎新志愿服务", "校级", "校团委", 10, 1.2, "协助新生报到、路线引导和材料发放，完成志愿时长登记。"),
             new ActivityTemplate("创新创业", "大学生创新创业训练计划", "校级", "创新创业学院", 16, 1.5, "参与项目申报、原型开发、阶段汇报和结题材料整理。")
@@ -188,7 +215,7 @@ VALUES (@StudentId, @Category, @ActivityName, @Level, @Organizer, @StartDate, @E
             var status = statuses[(i - 1) % statuses.Length];
             var startDate = startBase.AddDays((i * 3) % 140);
             var endDate = template.Hours >= 12 ? startDate.AddDays(1) : startDate;
-            var credits = status == "已通过" ? template.Credits + ((i % 3) * 0.2) : 0;
+            var credits = status == "未通过" ? 0 : template.Credits + ((i % 3) * 0.2);
             var reviewedAt = status == "待审核" ? null : startDate.AddDays(2).AddHours(10 + i % 6).ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
 
             command.Parameters.Clear();

@@ -1,10 +1,12 @@
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SecondClassroomManager.Data;
 using SecondClassroomManager.Models;
 
 namespace SecondClassroomManager.Controllers;
 
+[Authorize(Roles = "Admin")]
 public class StudentsController : Controller
 {
     private readonly SecondClassroomRepository _repository;

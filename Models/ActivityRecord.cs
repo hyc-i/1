@@ -63,7 +63,7 @@ public class ActivityRecord
     [Display(Name = "审核状态")]
     public string Status { get; set; } = ActivityOptions.PendingStatus;
 
-    [Display(Name = "第二课堂学分")]
+    [Display(Name = "申请/认定学分")]
     [Range(0, 20, ErrorMessage = "学分范围为 0-20")]
     public double Credits { get; set; }
 

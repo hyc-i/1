@@ -1,0 +1,42 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "学生登录";
+}
+
+<section class="page-heading compact login-panel-width">
+    <p class="eyebrow">Student Login</p>
+    <h1>学生登录</h1>
+    <p>使用学生档案中的学号和手机号登录，进入个人第二课堂界面。</p>
+</section>
+
+<div class="demo-login-card login-panel-width">
+    <span>演示学生账号</span>
+    <strong>2024010101 / 13800000001</strong>
+    <small>页面已默认填入，可直接点击进入学生端查看效果。</small>
+</div>
+
+<form asp-action="StudentLogin" method="post" class="form-card login-form-card login-panel-width">
+    @Html.AntiForgeryToken()
+    <input asp-for="ReturnUrl" type="hidden" />
+    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+    <div class="form-grid">
+        <div>
+            <label asp-for="Username" class="form-label">学号</label>
+            <input asp-for="Username" class="form-control" placeholder="如 2024050001" />
+            <span asp-validation-for="Username"></span>
+        </div>
+        <div>
+            <label asp-for="Password" class="form-label">手机号</label>
+            <input asp-for="Password" class="form-control" value="@Model.Password" placeholder="学生档案中的手机号" />
+            <span asp-validation-for="Password"></span>
+        </div>
+    </div>
+    <div class="hero-actions">
+        <button class="btn btn-ink" type="submit">进入学生端</button>
+        <a class="btn btn-paper" asp-action="Index">返回登录入口</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

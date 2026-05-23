@@ -1,11 +1,14 @@
 using System.Globalization;
+using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SecondClassroomManager.Data;
 using SecondClassroomManager.Models;
 
 namespace SecondClassroomManager.Controllers;
 
+[Authorize(Roles = "Admin,Student")]
 public class ActivityRecordsController : Controller
 {
     private readonly SecondClassroomRepository _repository;
@@ -15,6 +18,9 @@ public class ActivityRecordsController : Controller
         _repository = repository;
     }
 
+    private bool IsStudentOnly() => User.IsInRole("Student") && !User.IsInRole("Admin");
+
+    [Authorize(Roles = "Admin")]
     public IActionResult Index(string? keyword, string? status, string? category)
     {
         ViewBag.Keyword = keyword ?? string.Empty;
@@ -23,6 +29,7 @@ public class ActivityRecordsController : Controller
         return View(_repository.GetActivityRecords(keyword, status, category));
     }
 
+    [Authorize(Roles = "Admin")]
     public IActionResult Export(string? keyword, string? status, string? category)
     {
         var records = _repository.GetActivityRecords(keyword, status, category);
@@ -60,35 +67,60 @@ public class ActivityRecordsController : Controller
             return NotFound();
         }
 
+        if (!CanAccessRecord(record))
+        {
+            return Forbid();
+        }
+
         ViewBag.ReviewLogs = _repository.GetReviewLogs(id);
         return View(record);
     }
 
     public IActionResult Create(int? studentId)
     {
+        var isStudentOnly = IsStudentOnly();
         PopulateSelections();
-        return View(new ActivityRecord
+        if (isStudentOnly && ViewBag.CurrentStudent == null)
         {
-            StudentId = studentId ?? 0,
+            return Forbid();
+        }
+
+        ViewBag.CanEditCredits = true;
+        var record = new ActivityRecord
+        {
+            StudentId = isStudentOnly ? CurrentStudentId() : studentId ?? 0,
             StartDate = DateTime.Today,
-            EndDate = DateTime.Today
-        });
+            EndDate = DateTime.Today,
+            Hours = 1,
+            Credits = 1
+        };
+
+        return View(record);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult Create(ActivityRecord record)
     {
-        ValidateRecord(record);
+        var isStudentOnly = IsStudentOnly();
+        if (isStudentOnly)
+        {
+            record.StudentId = CurrentStudentId();
+        }
+
+        ValidateRecord(record, requirePositiveCredits: true);
         if (!ModelState.IsValid)
         {
             PopulateSelections();
+            ViewBag.CanEditCredits = true;
             return View(record);
         }
 
         _repository.CreateActivityRecord(record);
         TempData["Success"] = "第二课堂登记记录已提交，等待审核";
-        return RedirectToAction(nameof(Index), new { status = ActivityOptions.PendingStatus });
+        return isStudentOnly
+            ? RedirectToAction("Index", "StudentPortal")
+            : RedirectToAction(nameof(Index), new { status = ActivityOptions.PendingStatus });
     }
 
     public IActionResult Edit(int id)
@@ -99,7 +131,13 @@ public class ActivityRecordsController : Controller
             return NotFound();
         }
 
+        if (!CanEditRecord(record))
+        {
+            return Forbid();
+        }
+
         PopulateSelections();
+        ViewBag.CanEditCredits = IsStudentOnly() && record.Status == ActivityOptions.PendingStatus;
         return View(record);
     }
 
@@ -112,10 +150,36 @@ public class ActivityRecordsController : Controller
             return BadRequest();
         }
 
-        ValidateRecord(record);
+        var existing = _repository.GetActivityRecord(id);
+        if (existing == null)
+        {
+            return NotFound();
+        }
+
+        if (!CanEditRecord(existing))
+        {
+            return Forbid();
+        }
+
+        var isStudentOnly = IsStudentOnly();
+        if (isStudentOnly)
+        {
+            record.StudentId = existing.StudentId;
+        }
+        else
+        {
+            record.Credits = existing.Credits;
+        }
+
+        record.Status = existing.Status;
+        record.ReviewOpinion = existing.ReviewOpinion;
+        record.ReviewedAt = existing.ReviewedAt;
+
+        ValidateRecord(record, requirePositiveCredits: isStudentOnly);
         if (!ModelState.IsValid)
         {
             PopulateSelections();
+            ViewBag.CanEditCredits = isStudentOnly && existing.Status == ActivityOptions.PendingStatus;
             return View(record);
         }
 
@@ -124,6 +188,7 @@ public class ActivityRecordsController : Controller
         return RedirectToAction(nameof(Details), new { id });
     }
 
+    [Authorize(Roles = "Admin")]
     public IActionResult Review(int id)
     {
         var record = _repository.GetActivityRecord(id);
@@ -142,6 +207,7 @@ public class ActivityRecordsController : Controller
         });
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult Review(int id, ReviewActivityRecordViewModel model)
@@ -169,6 +235,7 @@ public class ActivityRecordsController : Controller
         return RedirectToAction(nameof(Details), new { id });
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult Delete(int id)
@@ -180,22 +247,63 @@ public class ActivityRecordsController : Controller
 
     private void PopulateSelections()
     {
-        ViewBag.Students = _repository.GetStudents();
+        if (IsStudentOnly())
+        {
+            ViewBag.CurrentStudent = _repository.GetStudent(CurrentStudentId());
+            ViewBag.Students = Array.Empty<Student>();
+        }
+        else
+        {
+            ViewBag.Students = _repository.GetStudents();
+        }
+
         ViewBag.Categories = ActivityOptions.Categories;
         ViewBag.Levels = ActivityOptions.Levels;
     }
 
-    private void ValidateRecord(ActivityRecord record)
+    private void ValidateRecord(ActivityRecord record, bool requirePositiveCredits)
     {
         if (record.StudentId <= 0 || _repository.GetStudent(record.StudentId) == null)
         {
             ModelState.AddModelError(nameof(ActivityRecord.StudentId), "请选择有效学生");
         }
 
+        if (record.Hours <= 0)
+        {
+            ModelState.AddModelError(nameof(ActivityRecord.Hours), "请输入大于 0 的活动时长");
+        }
+
+        if (requirePositiveCredits && record.Credits <= 0)
+        {
+            ModelState.AddModelError(nameof(ActivityRecord.Credits), "请输入申请学分");
+        }
+
         if (record.StartDate.HasValue && record.EndDate.HasValue && record.EndDate < record.StartDate)
         {
             ModelState.AddModelError(nameof(ActivityRecord.EndDate), "结束日期不能早于开始日期");
         }
+    }
+
+    private bool CanAccessRecord(ActivityRecord record)
+    {
+        return User.IsInRole("Admin") || IsStudentOnly() && record.StudentId == CurrentStudentId();
+    }
+
+    private bool CanEditRecord(ActivityRecord record)
+    {
+        if (User.IsInRole("Admin"))
+        {
+            return true;
+        }
+
+        return IsStudentOnly()
+            && record.StudentId == CurrentStudentId()
+            && record.Status == ActivityOptions.PendingStatus;
+    }
+
+    private int CurrentStudentId()
+    {
+        return int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : 0;
     }
 
     private static FileContentResult CsvFile(StringBuilder builder, string fileName)
@@ -210,6 +318,7 @@ public class ActivityRecordsController : Controller
 
     private static string Csv(string value)
     {
-        return $"\"{value.Replace("\"", "\"\"")}\"";
+        var safeValue = value.Length > 0 && "=+-@".Contains(value[0]) ? "'" + value : value;
+        return $"\"{safeValue.Replace("\"", "\"\"")}\"";
     }
 }

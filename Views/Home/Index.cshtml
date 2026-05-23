@@ -6,10 +6,10 @@
 <section class="hero-board">
     <div class="hero-copy">
         <p class="eyebrow">第二课堂教务管理台</p>
-        <h1>把学生成长轨迹整理成可审核、可统计、可追溯的第二课堂档案。</h1>
-        <p class="hero-text">系统覆盖学生基础信息维护、第二课堂登记、审核授分与管理员综合查询，数据库随项目自动初始化。</p>
+        <h1>用一张清晰的工作台管理登记、审核、学分和学生成长档案。</h1>
+        <p class="hero-text">从活动提交到审核授分，再到学生达标统计，管理员可以在同一界面快速完成日常处理。</p>
         <div class="hero-actions">
-            <a class="btn btn-ink" asp-controller="ActivityRecords" asp-action="Create">登记活动</a>
+            <a class="btn btn-ink" asp-controller="ActivityRecords" asp-action="Index" asp-route-status="待审核">进入审核入口</a>
             <a class="btn btn-paper" asp-controller="Students" asp-action="Import">导入学生</a>
         </div>
     </div>

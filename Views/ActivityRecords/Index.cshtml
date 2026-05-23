@@ -32,8 +32,10 @@
         <button class="btn btn-ink" type="submit">筛选</button>
         <a class="btn btn-paper" asp-action="Index">重置</a>
     </form>
-    <a class="btn btn-paper" asp-action="Export" asp-route-keyword="@ViewBag.Keyword" asp-route-status="@ViewBag.Status" asp-route-category="@ViewBag.Category">导出当前结果</a>
-    <a class="btn btn-ink" asp-action="Create">新增登记</a>
+    <div class="toolbar-actions">
+        <a class="btn btn-paper" asp-action="Export" asp-route-keyword="@ViewBag.Keyword" asp-route-status="@ViewBag.Status" asp-route-category="@ViewBag.Category">导出当前结果</a>
+        <a class="btn btn-ink" asp-action="Create">新增登记</a>
+    </div>
 </div>
 
 <section class="table-card">

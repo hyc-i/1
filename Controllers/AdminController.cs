@@ -1,10 +1,12 @@
 using System.Globalization;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SecondClassroomManager.Data;
 
 namespace SecondClassroomManager.Controllers;
 
+[Authorize(Roles = "Admin")]
 public class AdminController : Controller
 {
     private readonly SecondClassroomRepository _repository;
@@ -70,6 +72,7 @@ public class AdminController : Controller
 
     private static string Csv(string value)
     {
-        return $"\"{value.Replace("\"", "\"\"")}\"";
+        var safeValue = value.Length > 0 && "=+-@".Contains(value[0]) ? "'" + value : value;
+        return $"\"{safeValue.Replace("\"", "\"\"")}\"";
     }
 }

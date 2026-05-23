@@ -1,0 +1,92 @@
+@model Student
+@{
+    ViewData["Title"] = "学生个人中心";
+    var records = ViewBag.Records as IReadOnlyList<ActivityRecord> ?? Array.Empty<ActivityRecord>();
+    var approvedCredits = records.Where(r => r.Status == ActivityOptions.ApprovedStatus).Sum(r => r.Credits);
+    var pendingCredits = records.Where(r => r.Status == ActivityOptions.PendingStatus).Sum(r => r.Credits);
+    var creditStatus = approvedCredits >= StudentSummary.TargetCredits ? "已达标" : approvedCredits >= StudentSummary.NearTargetCredits ? "接近达标" : "未达标";
+    var creditStatusClass = creditStatus == "已达标" ? "approved" : creditStatus == "未达标" ? "rejected" : string.Empty;
+    var remainingCredits = Math.Max(0, StudentSummary.TargetCredits - approvedCredits);
+    var creditProgress = StudentSummary.TargetCredits <= 0 ? 0 : Math.Min(100, approvedCredits / StudentSummary.TargetCredits * 100);
+    var creditProgressText = creditProgress.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture);
+}
+
+<section class="page-heading compact">
+    <p class="eyebrow">Student Portal</p>
+    <h1>@Model.Name 的第二课堂个人中心</h1>
+    <p>@Model.StudentNo · @Model.College @Model.Major @Model.ClassName</p>
+</section>
+
+<section class="metric-grid">
+    <article class="metric-card"><span>登记总数</span><strong>@records.Count</strong><small>我的全部第二课堂记录</small></article>
+    <article class="metric-card urgent"><span>待审核</span><strong>@records.Count(x => x.Status == ActivityOptions.PendingStatus)</strong><small>申请学分 @pendingCredits.ToString("0.##") 分</small></article>
+    <article class="metric-card"><span>已通过</span><strong>@records.Count(x => x.Status == ActivityOptions.ApprovedStatus)</strong><small>已计入个人档案</small></article>
+    <article class="metric-card"><span>认定学分</span><strong>@approvedCredits.ToString("0.0")</strong><small>距离目标还差 @remainingCredits.ToString("0.##") 分</small></article>
+</section>
+
+<section class="panel-card">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">Profile</p>
+            <h2>个人信息</h2>
+        </div>
+        <div class="hero-actions m-0">
+            <span class="status-badge @creditStatusClass">@creditStatus</span>
+            <a class="btn btn-ink" asp-controller="ActivityRecords" asp-action="Create">登记第二课堂活动</a>
+        </div>
+    </div>
+    <div class="detail-grid">
+        <div class="detail-tile"><span class="detail-label">性别</span><strong>@Model.Gender</strong></div>
+        <div class="detail-tile"><span class="detail-label">电话</span><strong>@Model.Phone</strong></div>
+        <div class="detail-tile"><span class="detail-label">邮箱</span><strong>@Model.Email</strong></div>
+        <div class="detail-tile"><span class="detail-label">学分目标</span><strong>@StudentSummary.TargetCredits.ToString("0.0") 分</strong><small>已认定 @approvedCredits.ToString("0.##") 分</small></div>
+        <div class="credit-progress">
+            <div class="credit-progress-header">
+                <span>学分达成进度</span>
+                <strong>@creditProgress.ToString("0.#")%</strong>
+            </div>
+            <div class="credit-progress-track"><span class="credit-progress-bar" style="width:@creditProgressText%"></span></div>
+        </div>
+    </div>
+</section>
+
+<section class="table-card mt-4">
+    <div class="panel-title">
+        <div>
+            <p class="eyebrow">My Records</p>
+            <h2>我的登记记录</h2>
+        </div>
+    </div>
+    @if (records.Count == 0)
+    {
+        <div class="empty-state">你还没有提交第二课堂登记记录。</div>
+    }
+    else
+    {
+        <table class="ledger-table">
+            <thead><tr><th>活动</th><th>类别</th><th>状态</th><th>申请/认定学分</th><th class="text-end">操作</th></tr></thead>
+            <tbody>
+                @foreach (var item in records)
+                {
+                    var statusClass = item.Status == ActivityOptions.ApprovedStatus ? "approved" : item.Status == ActivityOptions.RejectedStatus ? "rejected" : "pending";
+                    var canEdit = item.Status == ActivityOptions.PendingStatus;
+                    <tr>
+                        <td><span class="identity"><strong>@item.ActivityName</strong><small>@item.StartDate?.ToString("yyyy-MM-dd") - @item.EndDate?.ToString("yyyy-MM-dd")</small></span></td>
+                        <td>@item.Category<br /><small>@item.Level</small></td>
+                        <td><span class="status-badge @statusClass">@item.Status</span></td>
+                        <td>@item.Credits.ToString("0.##")</td>
+                        <td>
+                            <div class="table-actions">
+                                <a class="btn btn-paper" asp-controller="ActivityRecords" asp-action="Details" asp-route-id="@item.Id">详情</a>
+                                @if (canEdit)
+                                {
+                                    <a class="btn btn-paper" asp-controller="ActivityRecords" asp-action="Edit" asp-route-id="@item.Id">编辑</a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>

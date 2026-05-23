@@ -14,7 +14,14 @@
     <partial name="_ActivityForm" model="Model" />
     <div class="hero-actions">
         <button class="btn btn-ink" type="submit">提交登记</button>
-        <a class="btn btn-paper" asp-action="Index">返回记录</a>
+        @if (User.IsInRole("Student"))
+        {
+            <a class="btn btn-paper" asp-controller="StudentPortal" asp-action="Index">返回学生主页</a>
+        }
+        else
+        {
+            <a class="btn btn-paper" asp-action="Index">返回记录</a>
+        }
     </div>
 </form>
 
