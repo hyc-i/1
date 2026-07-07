@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>选座预约 — 座位列表</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand navbar-system">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">图书馆座位预约</a>
+    <div class="d-flex align-items-center gap-3">
+      <a class="nav-link" href="index.html">首页</a>
+      <a class="nav-link active" href="seats.html">选座</a>
+      <a class="nav-link" href="my-reservations.html">我的预约</a>
+      <span class="navbar-user">学生 A</span>
+    </div>
+  </div>
+</nav>
+
+<div class="container py-4">
+  <h1 class="fw-bold" style="font-size:24px;">选座预约</h1>
+  <p class="text-secondary" style="font-size:14px;">选择空闲座位进行预约</p>
+
+  <!-- Filter -->
+  <div class="filter-bar">
+    <select class="form-select" id="areaFilter" onchange="filterSeats()">
+      <option value="all">全部区域</option>
+      <option value="一楼大厅">一楼大厅</option>
+      <option value="二楼阅览区">二楼阅览区</option>
+      <option value="三楼自习区">三楼自习区</option>
+    </select>
+  </div>
+
+  <!-- Skeleton Loading (shown initially, then replaced) -->
+  <div id="skeleton-area">
+    <div class="skeleton skeleton-card"></div>
+    <div class="skeleton skeleton-card"></div>
+    <div class="skeleton skeleton-card"></div>
+    <div class="skeleton skeleton-card"></div>
+    <div class="skeleton skeleton-card"></div>
+    <div class="skeleton skeleton-card"></div>
+  </div>
+
+  <!-- Error State (hidden) -->
+  <div id="error-state" class="empty-state d-none">
+    <div class="empty-state-icon">&#9888;</div>
+    <h5>座位数据加载失败</h5>
+    <p>请检查网络后重试</p>
+    <button class="btn btn-primary" onclick="loadSeats()">重新加载</button>
+  </div>
+
+  <!-- Seat Cards Container -->
+  <div id="seat-container" class="d-none"></div>
+
+  <!-- Empty State (hidden) -->
+  <div id="empty-state" class="empty-state d-none">
+    <div class="empty-state-icon">&#128218;</div>
+    <h5>该区域暂未设置座位</h5>
+    <p>请选择其他区域查看</p>
+    <button class="btn btn-outline-primary" onclick="document.getElementById('areaFilter').value='all';filterSeats()">查看全部座位</button>
+  </div>
+</div>
+
+<div class="mobile-safe-bottom"></div>
+
+<script>
+// ---------- Mock Data ----------
+const mockSeats = [
+  { id:1, number:"A-01", area:"三楼自习区", floor:"3F", desc:"靠窗、有插座", status:"available" },
+  { id:2, number:"A-02", area:"三楼自习区", floor:"3F", desc:"中间位置", status:"available" },
+  { id:3, number:"A-03", area:"三楼自习区", floor:"3F", desc:"靠窗", status:"occupied" },
+  { id:4, number:"A-04", area:"三楼自习区", floor:"3F", desc:"靠近门口", status:"available" },
+  { id:5, number:"A-05", area:"三楼自习区", floor:"3F", desc:"中间位置、有插座", status:"available" },
+  { id:6, number:"B-01", area:"二楼阅览区", floor:"2F", desc:"靠墙、有台灯", status:"available" },
+  { id:7, number:"B-02", area:"二楼阅览区", floor:"2F", desc:"靠近入口", status:"occupied" },
+  { id:8, number:"B-03", area:"二楼阅览区", floor:"2F", desc:"靠窗、安静", status:"available" },
+  { id:9, number:"B-04", area:"二楼阅览区", floor:"2F", desc:"中间位置", status:"occupied" },
+  { id:10, number:"C-01", area:"一楼大厅", floor:"1F", desc:"休闲区软座", status:"available" },
+  { id:11, number:"C-02", area:"一楼大厅", floor:"1F", desc:"靠近咖啡区", status:"available" },
+  { id:12, number:"C-03", area:"一楼大厅", floor:"1F", desc:"休息区", status:"occupied" }
+];
+
+function loadSeats() {
+  const skeleton = document.getElementById('skeleton-area');
+  const errorState = document.getElementById('error-state');
+  const container = document.getElementById('seat-container');
+  const emptyState = document.getElementById('empty-state');
+
+  // Show skeleton, hide others
+  skeleton.classList.remove('d-none');
+  errorState.classList.add('d-none');
+  container.classList.add('d-none');
+  emptyState.classList.add('d-none');
+
+  // Simulate network delay (800ms)
+  setTimeout(function() {
+    skeleton.classList.add('d-none');
+    // Simulate occasional error (uncomment to test)
+    // errorState.classList.remove('d-none'); return;
+    renderSeats(mockSeats);
+  }, 800);
+}
+
+function renderSeats(data) {
+  const container = document.getElementById('seat-container');
+  const emptyState = document.getElementById('empty-state');
+  container.innerHTML = '';
+
+  // Filter by area
+  const filterVal = document.getElementById('areaFilter').value;
+  const filtered = filterVal === 'all' ? data : data.filter(function(s) { return s.area === filterVal; });
+
+  if (filtered.length === 0) {
+    container.classList.add('d-none');
+    emptyState.classList.remove('d-none');
+    return;
+  }
+
+  emptyState.classList.add('d-none');
+  container.classList.remove('d-none');
+
+  filtered.forEach(function(s) {
+    const isAvail = s.status === 'available';
+    const badgeClass = isAvail ? 'badge-available' : 'badge-occupied';
+    const badgeText = isAvail ? '空闲' : '已预约';
+    const btnHtml = isAvail
+      ? '<a href="seat-detail.html?id=' + s.id + '" class="btn btn-success btn-sm">查看</a>'
+      : '<button class="btn btn-disabled btn-sm" disabled>已预约</button>';
+
+    container.innerHTML +=
+      '<div class="seat-card">' +
+        '<div class="seat-number">' + s.number + '</div>' +
+        '<div class="seat-info">' +
+          '<div class="seat-area">' + s.area + '</div>' +
+          '<div class="seat-meta"><span class="badge-custom badge-sm ' + badgeClass + '">' + badgeText + '</span> ' + s.floor + ' · ' + s.desc + '</div>' +
+        '</div>' +
+        '<div class="seat-action">' + btnHtml + '</div>' +
+      '</div>';
+  });
+}
+
+function filterSeats() {
+  renderSeats(mockSeats);
+}
+
+// Initialize on page load
+window.onload = loadSeats;
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>座位详情</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand navbar-system">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">图书馆座位预约</a>
+    <span class="navbar-user">学生 A</span>
+  </div>
+</nav>
+
+<div class="container py-4">
+  <!-- Back -->
+  <a href="seats.html" class="text-decoration-none text-secondary" style="font-size:14px;">&larr; 返回座位列表</a>
+
+  <!-- Seat Info Card -->
+  <div class="card mt-3">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <h1 class="fw-bold" style="font-size:24px; margin-bottom:4px;">A-01</h1>
+          <p class="text-secondary" style="font-size:14px; margin-bottom:0;">三楼自习区 · 3F</p>
+          <p class="text-secondary" style="font-size:14px;">靠窗、有插座</p>
+        </div>
+        <span class="badge-custom badge-available" id="status-badge">空闲</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Availability Alert for occupied state (hidden by default) -->
+  <div id="occupied-alert" class="alert alert-error-custom d-none mt-3" role="alert">
+    此座位已被他人预约，当前时段不可用。
+    <a href="seats.html" class="alert-link">查看其他座位</a>
+  </div>
+
+  <!-- Date & Time Selection -->
+  <div class="card mt-3">
+    <div class="card-body">
+      <p class="card-title-custom">选择时段</p>
+      <div class="mb-3">
+        <label class="form-label">日期</label>
+        <input type="date" class="form-control" id="reserve-date" value="2026-07-07">
+      </div>
+      <div class="row g-3">
+        <div class="col-6">
+          <label class="form-label">开始时间</label>
+          <input type="time" class="form-control" id="start-time" value="09:00">
+        </div>
+        <div class="col-6">
+          <label class="form-label">结束时间</label>
+          <input type="time" class="form-control" id="end-time" value="11:00">
+        </div>
+      </div>
+      <div id="time-error" class="form-error">结束时间不能早于开始时间</div>
+    </div>
+  </div>
+
+  <!-- Rules -->
+  <div class="card mt-3">
+    <div class="card-body">
+      <p class="card-title-custom">温馨提示</p>
+      <ul class="text-secondary" style="font-size:14px; padding-left:20px; margin-bottom:0;">
+        <li>每人每天最多预约 4 小时</li>
+        <li>可提前 3 天预约</li>
+        <li>如需取消请提前 30 分钟</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Action Button (varies by state) -->
+  <div class="mt-4" id="action-area">
+    <a href="reservation-create.html?seat=A-01" class="btn btn-success btn-lg w-100" id="reserve-btn">立即预约</a>
+  </div>
+
+  <!-- Occupied state action (hidden) -->
+  <div class="mt-4 d-none" id="occupied-action">
+    <a href="seats.html" class="btn btn-outline-primary btn-lg w-100">查看可选座位</a>
+  </div>
+</div>
+
+<div class="mobile-safe-bottom"></div>
+
+<script>
+// Simulate query param
+var params = new URLSearchParams(window.location.search);
+var seatId = params.get('id') || '1';
+
+// Mock data — change this seat's status to test occupied state
+var seat = { id:1, number:'A-01', area:'三楼自习区', floor:'3F', desc:'靠窗、有插座', status:'available' };
+// Uncomment below to test occupied state:
+// seat.status = 'occupied';
+
+function render() {
+  var isAvail = seat.status === 'available';
+  document.getElementById('status-badge').textContent = isAvail ? '空闲' : '已预约';
+  document.getElementById('status-badge').className = 'badge-custom ' + (isAvail ? 'badge-available' : 'badge-occupied');
+
+  document.getElementById('occupied-alert').classList.toggle('d-none', isAvail);
+  document.getElementById('action-area').classList.toggle('d-none', !isAvail);
+  document.getElementById('occupied-action').classList.toggle('d-none', isAvail);
+
+  if (!isAvail) {
+    document.getElementById('reserve-btn').classList.remove('btn-success');
+    document.getElementById('reserve-btn').classList.add('btn-disabled');
+    document.getElementById('reserve-btn').textContent = '已预约';
+  }
+}
+render();
+
+// Time validation
+document.getElementById('end-time').addEventListener('change', function() {
+  var start = document.getElementById('start-time').value;
+  var end = this.value;
+  var err = document.getElementById('time-error');
+  if (start && end && end <= start) {
+    err.style.display = 'block';
+  } else {
+    err.style.display = 'none';
+  }
+});
+document.getElementById('start-time').addEventListener('change', function() {
+  var start = this.value;
+  var end = document.getElementById('end-time').value;
+  var err = document.getElementById('time-error');
+  if (start && end && end <= start) {
+    err.style.display = 'block';
+  } else {
+    err.style.display = 'none';
+  }
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

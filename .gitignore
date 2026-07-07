@@ -32,6 +32,9 @@ Thumbs.db
 .env.*
 !.env.example
 
-# SQLite transient files
+# SQLite / LocalDB transient files
 *.db-shm
 *.db-wal
+*.mdf
+*.ldf
+App_Data/

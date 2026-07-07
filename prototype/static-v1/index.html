@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>图书馆座位预约 — 首页</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand navbar-system">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">图书馆座位预约</a>
+    <div class="d-flex align-items-center gap-3">
+      <a class="nav-link active" href="index.html">首页</a>
+      <a class="nav-link" href="seats.html">选座</a>
+      <a class="nav-link" href="my-reservations.html">我的预约</a>
+      <span class="navbar-user">学生 A</span>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container py-4">
+  <!-- Welcome -->
+  <p class="text-secondary" style="font-size:14px; margin-bottom:4px;">欢迎回来，学生 A</p>
+  <h1 class="fw-bold" style="font-size:24px; margin-bottom:24px;">图书馆座位预约</h1>
+
+  <!-- Stats Section -->
+  <div id="stats-area">
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-md-4">
+        <div class="card stat-card h-100">
+          <div class="stat-number" style="color:var(--color-primary);">42</div>
+          <div class="stat-label">总座位数</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="card stat-card h-100">
+          <div class="stat-number" style="color:var(--color-success);">12</div>
+          <div class="stat-label">空闲座位</div>
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="card stat-card h-100">
+          <div class="stat-number" style="color:var(--color-warning);">30</div>
+          <div class="stat-label">已预约</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State (hidden by default) -->
+  <div id="stats-error" class="alert alert-error-custom d-none" role="alert">
+    统计数据暂时不可用，请稍后重试。
+    <button class="btn btn-sm btn-outline-primary ms-3" onclick="location.reload()">重新加载</button>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="d-flex gap-3 mb-4">
+    <a href="seats.html" class="btn btn-primary flex-fill btn-lg">选座预约</a>
+    <a href="my-reservations.html" class="btn btn-outline-primary flex-fill btn-lg">我的预约</a>
+  </div>
+
+  <!-- Demo Account Section (for non-logged-in state simulation) -->
+  <div class="card">
+    <div class="card-body">
+      <p class="card-title-custom">体验账号登录</p>
+      <p class="text-secondary" style="font-size:14px;">选择以下账号快速体验：</p>
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="index.html" class="btn btn-outline-primary btn-sm flex-fill">学生 A</a>
+        <a href="index.html" class="btn btn-outline-primary btn-sm flex-fill">学生 B</a>
+        <a href="index.html" class="btn btn-outline-primary btn-sm flex-fill">学生 C</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading simulation: uncomment to test skeleton -->
+<!--
+<div class="container py-4" id="stats-loading">
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-4"><div class="skeleton skeleton-stat"></div></div>
+    <div class="col-12 col-md-4"><div class="skeleton skeleton-stat"></div></div>
+    <div class="col-12 col-md-4"><div class="skeleton skeleton-stat"></div></div>
+  </div>
+</div>
+-->
+
+<div class="mobile-safe-bottom"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

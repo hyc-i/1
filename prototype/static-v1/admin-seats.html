@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>座位管理 — 管理员</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="admin-topbar">
+  <button class="btn btn-sm btn-outline-primary d-md-none me-3" onclick="toggleSidebar()">&#9776;</button>
+  <span class="fw-bold" style="font-size:20px; color:var(--color-primary);">座位预约管理</span>
+  <div class="ms-auto d-flex align-items-center gap-3">
+    <span class="text-secondary" style="font-size:14px;">管理员</span>
+    <a href="admin-login.html" class="text-decoration-none" style="font-size:14px; color:var(--color-gray-500);">退出</a>
+  </div>
+</div>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar" id="adminSidebar">
+    <a href="admin-reservations.html" class="nav-link">预约管理</a>
+    <a href="admin-seats.html" class="nav-link active">座位管理</a>
+    <a href="admin-statistics.html" class="nav-link">数据统计</a>
+  </aside>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <main class="admin-content">
+    <div class="d-flex justify-content-between align-items-center page-header">
+      <div>
+        <h1>座位管理</h1>
+        <p class="page-subtitle">管理图书馆座位信息</p>
+      </div>
+      <button class="btn btn-primary" onclick="openAddModal()">+ 新增座位</button>
+    </div>
+
+    <!-- Seat Table -->
+    <div class="table-responsive">
+      <table class="table-custom">
+        <thead>
+          <tr>
+            <th>座位编号</th>
+            <th>区域</th>
+            <th>楼层</th>
+            <th>设施描述</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>A-01</td><td>三楼自习区</td><td>3F</td><td>靠窗、有插座</td>
+            <td><span class="badge-custom badge-sm badge-available">空闲</span></td>
+            <td class="actions">
+              <button class="btn btn-outline-primary btn-sm" onclick="openEditModal(this)">编辑</button>
+              <button class="btn btn-danger btn-sm" onclick="confirmDelete(this)">删除</button>
+            </td>
+          </tr>
+          <tr>
+            <td>A-02</td><td>三楼自习区</td><td>3F</td><td>中间位置</td>
+            <td><span class="badge-custom badge-sm badge-available">空闲</span></td>
+            <td class="actions">
+              <button class="btn btn-outline-primary btn-sm" onclick="openEditModal(this)">编辑</button>
+              <button class="btn btn-danger btn-sm" onclick="confirmDelete(this)">删除</button>
+            </td>
+          </tr>
+          <tr>
+            <td>A-03</td><td>三楼自习区</td><td>3F</td><td>靠窗</td>
+            <td><span class="badge-custom badge-sm badge-occupied">已预约</span></td>
+            <td class="actions">
+              <button class="btn btn-outline-primary btn-sm" onclick="openEditModal(this)">编辑</button>
+              <button class="btn btn-danger btn-sm" onclick="confirmDelete(this)">删除</button>
+            </td>
+          </tr>
+          <tr>
+            <td>B-01</td><td>二楼阅览区</td><td>2F</td><td>靠墙、有台灯</td>
+            <td><span class="badge-custom badge-sm badge-available">空闲</span></td>
+            <td class="actions">
+              <button class="btn btn-outline-primary btn-sm" onclick="openEditModal(this)">编辑</button>
+              <button class="btn btn-danger btn-sm" onclick="confirmDelete(this)">删除</button>
+            </td>
+          </tr>
+          <tr>
+            <td>C-01</td><td>一楼大厅</td><td>1F</td><td>休闲区软座</td>
+            <td><span class="badge-custom badge-sm badge-available">空闲</span></td>
+            <td class="actions">
+              <button class="btn btn-outline-primary btn-sm" onclick="openEditModal(this)">编辑</button>
+              <button class="btn btn-danger btn-sm" onclick="confirmDelete(this)">删除</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State (hidden) -->
+    <div id="empty-state" class="empty-state d-none">
+      <div class="empty-state-icon">&#128218;</div>
+      <h5>暂未设置座位</h5>
+      <p>新增座位后，学生才能预约使用。</p>
+      <button class="btn btn-primary" onclick="openAddModal()">+ 新增座位</button>
+    </div>
+  </main>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal fade" id="seatModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content" style="padding:24px;">
+      <div class="modal-header" style="border-bottom:none; padding:0 0 16px 0;">
+        <h5 class="modal-title fw-bold" id="modalTitle">新增座位</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" style="padding:0;">
+        <form id="seatForm">
+          <div class="mb-3">
+            <label class="form-label">座位编号 <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="seatNumber" placeholder="例：A-12" required>
+            <div class="form-error" id="numError">座位编号不能为空</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">区域 <span class="text-danger">*</span></label>
+            <select class="form-select" id="seatArea">
+              <option>一楼大厅</option>
+              <option>二楼阅览区</option>
+              <option>三楼自习区</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">楼层</label>
+            <input type="text" class="form-control" id="seatFloor" placeholder="例：1F">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">设施描述</label>
+            <textarea class="form-control" id="seatDesc" placeholder="例：靠窗、有插座"></textarea>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="seatActive" checked>
+            <label class="form-check-label" style="font-size:14px;">启用</label>
+          </div>
+        </form>
+      </div>
+      <div class="d-flex justify-content-end gap-2 mt-4">
+        <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" onclick="saveSeat()">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleSidebar() {
+  document.getElementById('adminSidebar').classList.toggle('show');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+
+function openAddModal() {
+  document.getElementById('modalTitle').textContent = '新增座位';
+  document.getElementById('seatForm').reset();
+  document.getElementById('seatNumber').value = '';
+  document.getElementById('seatArea').value = '一楼大厅';
+  document.getElementById('seatFloor').value = '';
+  document.getElementById('seatDesc').value = '';
+  document.getElementById('seatActive').checked = true;
+  var modal = new bootstrap.Modal(document.getElementById('seatModal'));
+  modal.show();
+}
+
+function openEditModal(btn) {
+  document.getElementById('modalTitle').textContent = '编辑座位';
+  var row = btn.closest('tr');
+  var cells = row.querySelectorAll('td');
+  document.getElementById('seatNumber').value = cells[0].textContent.trim();
+  document.getElementById('seatArea').value = cells[1].textContent.trim();
+  document.getElementById('seatFloor').value = cells[2].textContent.trim();
+  document.getElementById('seatDesc').value = cells[3].textContent.trim();
+  document.getElementById('seatActive').checked = true;
+  var modal = new bootstrap.Modal(document.getElementById('seatModal'));
+  modal.show();
+}
+
+function saveSeat() {
+  var num = document.getElementById('seatNumber').value.trim();
+  if (!num) {
+    document.getElementById('numError').style.display = 'block';
+    return;
+  }
+  document.getElementById('numError').style.display = 'none';
+  var modal = bootstrap.Modal.getInstance(document.getElementById('seatModal'));
+  modal.hide();
+  alert('座位 ' + num + ' 已保存（演示模式，数据未持久化）');
+}
+
+function confirmDelete(btn) {
+  if (!confirm('确定要删除此座位吗？如有未完成的预约将无法删除。')) return;
+  var row = btn.closest('tr');
+  row.remove();
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
