@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using LibrarySeatReservation.Web.DataAccess;
+using LibrarySeatReservation.Web.Models.Entities;
 using LibrarySeatReservation.Web.Models.ViewModels;
 
 namespace LibrarySeatReservation.Web.Services;
@@ -99,5 +100,75 @@ public class SeatService : ISeatService
             Description = s.Description,
             Status = s.IsActive ? (occupiedSeatIds.Contains(s.Id) ? "已预约" : "空闲") : "已停用"
         }).ToList();
+    }
+
+    public async Task<(bool Success, string ErrorMessage)> CreateSeatAsync(string seatNumber, string area, string? floor, string? description)
+    {
+        var exists = await _db.Seats.AnyAsync(s => s.SeatNumber == seatNumber);
+        if (exists)
+            return (false, "座位编号已存在");
+
+        var seat = new Seat
+        {
+            SeatNumber = seatNumber,
+            Area = area,
+            Floor = floor,
+            Description = description,
+            IsActive = true
+        };
+
+        _db.Seats.Add(seat);
+        await _db.SaveChangesAsync();
+        return (true, string.Empty);
+    }
+
+    public async Task<(bool Success, string ErrorMessage)> UpdateSeatAsync(int id, string seatNumber, string area, string? floor, string? description, bool isActive)
+    {
+        var seat = await _db.Seats.FindAsync(id);
+        if (seat == null)
+            return (false, "座位不存在");
+
+        var duplicate = await _db.Seats.AnyAsync(s => s.SeatNumber == seatNumber && s.Id != id);
+        if (duplicate)
+            return (false, "座位编号已被其他座位使用");
+
+        seat.SeatNumber = seatNumber;
+        seat.Area = area;
+        seat.Floor = floor;
+        seat.Description = description;
+        seat.IsActive = isActive;
+
+        await _db.SaveChangesAsync();
+        return (true, string.Empty);
+    }
+
+    public async Task<(bool Success, string ErrorMessage)> DeleteSeatAsync(int id)
+    {
+        var seat = await _db.Seats.Include(s => s.Reservations).FirstOrDefaultAsync(s => s.Id == id);
+        if (seat == null)
+            return (false, "座位不存在");
+
+        if (seat.Reservations.Any(r => r.Status == "预约中"))
+            return (false, "该座位尚有未完成的预约，无法停用");
+
+        seat.IsActive = false;
+        await _db.SaveChangesAsync();
+        return (true, string.Empty);
+    }
+
+    public async Task<SeatEditViewModel?> GetSeatForEditAsync(int id)
+    {
+        var seat = await _db.Seats.FindAsync(id);
+        if (seat == null) return null;
+
+        return new SeatEditViewModel
+        {
+            Id = seat.Id,
+            SeatNumber = seat.SeatNumber,
+            Area = seat.Area,
+            Floor = seat.Floor,
+            Description = seat.Description,
+            IsActive = seat.IsActive
+        };
     }
 }

@@ -6,4 +6,5 @@ public class AdminSeatsViewModel
 {
     public List<SeatItem> Seats { get; set; } = new();
     public SelectList? AreaOptions { get; set; }
+    public SeatEditViewModel NewSeat { get; set; } = new();
 }

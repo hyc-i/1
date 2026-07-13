@@ -1,27 +1,22 @@
 @model AdminReservationsViewModel
 @{
     ViewData["Title"] = "预约管理";
+    Layout = "_AdminLayout";
 }
 
 <h2>预约管理</h2>
 
-<nav class="navbar navbar-light bg-light mb-3 rounded">
-    <div class="container-fluid">
-        <form method="get" class="d-flex">
-            <select name="status" class="form-select me-2" onchange="this.form.submit()">
-                <option value="">全部状态</option>
-                @foreach (var s in Model.StatusFilter!.Items)
-                {
-                    <option value="@s" selected="@(string.Equals(Model.CurrentStatus, s))">@s</option>
-                }
-            </select>
-        </form>
-        <div>
-            <a asp-action="Statistics" class="btn btn-outline-primary btn-sm">查看统计</a>
-            <a asp-action="Seats" class="btn btn-outline-primary btn-sm">座位管理</a>
-        </div>
+<form method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <select name="status" class="form-select" onchange="this.form.submit()">
+            <option value="">全部状态</option>
+            @foreach (var s in Model.StatusFilter!.Items)
+            {
+                <option value="@s" selected="@(string.Equals(Model.CurrentStatus, s))">@s</option>
+            }
+        </select>
     </div>
-</nav>
+</form>
 
 <div class="table-responsive">
     <table class="table table-hover">
@@ -42,13 +37,14 @@
                 <tr>
                     <td>@item.SeatNumber</td>
                     <td>@item.Area</td>
+                    <td>@item.StudentName</td>
                     <td>@item.ReservationDate.ToString("yyyy-MM-dd")</td>
                     <td>@item.StartTime.ToString("HH:mm") - @item.EndTime.ToString("HH:mm")</td>
-                    <td><span class="badge @(item.Status == "预约中" ? "bg-success" : "bg-secondary")">@item.Status</span></td>
+                    <td><span class="badge @(item.Status == "预约中" ? "bg-primary" : "bg-secondary")">@item.Status</span></td>
                     <td>
                         @if (item.CanCancel)
                         {
-                            <form asp-action="Cancel" asp-route-id="@item.Id" method="post" onsubmit="return confirm('确定取消？')">
+                            <form asp-action="Cancel" asp-route-id="@item.Id" method="post" onsubmit="return confirm('确定取消该预约？')">
                                 <button type="submit" class="btn btn-danger btn-sm">取消</button>
                             </form>
                         }

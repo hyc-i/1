@@ -1,9 +1,13 @@
 @model AdminSeatsViewModel
 @{
     ViewData["Title"] = "座位管理";
+    Layout = "_AdminLayout";
 }
 
-<h2>座位管理</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">座位管理</h2>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">新增座位</button>
+</div>
 
 <div class="table-responsive">
     <table class="table table-hover">
@@ -13,6 +17,7 @@
                 <th>区域</th>
                 <th>描述</th>
                 <th>状态</th>
+                <th>操作</th>
             </tr>
         </thead>
         <tbody>
@@ -22,9 +27,126 @@
                     <td>@seat.SeatNumber</td>
                     <td>@seat.Area</td>
                     <td>@seat.Description</td>
-                    <td><span class="badge @(seat.Status == "空闲" ? "bg-success" : seat.Status == "已预约" ? "bg-warning text-dark" : "bg-secondary")">@seat.Status</span></td>
+                    <td>
+                        <span class="badge @(seat.Status == "空闲" ? "bg-success" : seat.Status == "已预约" ? "bg-warning text-dark" : "bg-secondary")">@seat.Status</span>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-outline-primary btn-sm"
+                                data-bs-toggle="modal" data-bs-target="#editModal"
+                                data-id="@seat.Id"
+                                data-seatnumber="@seat.SeatNumber"
+                                data-area="@seat.Area"
+                                data-description="@seat.Description">编辑</button>
+                        <form asp-action="DeleteSeat" asp-route-id="@seat.Id" method="post" class="d-inline"
+                              onsubmit="return confirm('确定停用座位 @seat.SeatNumber？')">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">停用</button>
+                        </form>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
 </div>
+
+@if (Model.Seats.Count == 0)
+{
+    <p class="text-muted">暂未设置座位。</p>
+}
+
+@* Create Modal *@
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="post" asp-action="CreateSeat" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">新增座位</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label asp-for="NewSeat.SeatNumber" class="form-label"></label>
+                    <input asp-for="NewSeat.SeatNumber" name="SeatNumber" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="NewSeat.Area" class="form-label"></label>
+                    <select asp-for="NewSeat.Area" name="Area" class="form-select" required>
+                        <option value="">请选择区域</option>
+                        @foreach (var area in Model.AreaOptions!.Items)
+                        {
+                            <option value="@area">@area</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="NewSeat.Floor" class="form-label"></label>
+                    <input asp-for="NewSeat.Floor" name="Floor" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="NewSeat.Description" class="form-label"></label>
+                    <input asp-for="NewSeat.Description" name="Description" class="form-control" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="submit" class="btn btn-primary">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@* Edit Modal *@
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="post" asp-action="EditSeat" class="modal-content">
+            <input type="hidden" name="Id" id="editId" value="0" />
+            <div class="modal-header">
+                <h5 class="modal-title">编辑座位</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">座位编号</label>
+                    <input name="SeatNumber" id="editSeatNumber" class="form-control" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">区域</label>
+                    <select name="Area" id="editArea" class="form-select" required>
+                        <option value="">请选择区域</option>
+                        @foreach (var area in Model.AreaOptions!.Items)
+                        {
+                            <option value="@area">@area</option>
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">楼层</label>
+                    <input name="Floor" id="editFloor" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">描述</label>
+                    <input name="Description" id="editDescription" class="form-control" />
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" name="IsActive" id="editIsActive" class="form-check-input" value="true" checked />
+                    <label class="form-check-label" for="editIsActive">启用</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="submit" class="btn btn-primary">保存</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $('#editModal').on('show.bs.modal', function (event) {
+            var btn = $(event.relatedTarget);
+            $('#editId').val(btn.data('id'));
+            $('#editSeatNumber').val(btn.data('seatnumber'));
+            $('#editArea').val(btn.data('area'));
+            $('#editFloor').val(btn.data('floor') || '');
+            $('#editDescription').val(btn.data('description') || '');
+        });
+    </script>
+}

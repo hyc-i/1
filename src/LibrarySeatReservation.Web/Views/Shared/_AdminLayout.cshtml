@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - 管理端</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        .admin-sidebar {
+            width: 220px;
+            min-height: calc(100vh - 60px);
+            background: #fff;
+            border-right: 1px solid #E5E7EB;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            overflow-y: auto;
+        }
+        .admin-sidebar .nav-link {
+            height: 48px;
+            padding: 12px 20px;
+            color: #374151;
+            border-left: 3px solid transparent;
+        }
+        .admin-sidebar .nav-link:hover {
+            background: #F3F4F6;
+        }
+        .admin-sidebar .nav-link.active {
+            background: #EFF6FF;
+            border-left-color: #2563EB;
+            font-weight: 600;
+            color: #2563EB;
+        }
+        .admin-main {
+            margin-left: 220px;
+            padding: 24px;
+            min-height: calc(100vh - 60px);
+            background: #F9FAFB;
+        }
+        .admin-navbar {
+            height: 60px;
+            background: #fff;
+            border-bottom: 1px solid #E5E7EB;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+        }
+        .admin-navbar .brand {
+            color: #2563EB;
+            font-size: 20px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+        .admin-navbar .user-info {
+            margin-left: auto;
+            font-size: 14px;
+            color: #6B7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-navbar">
+        <a class="brand" asp-controller="Admin" asp-action="Reservations">图书馆座位预约 · 管理端</a>
+        <span class="user-info">
+            @User.Identity?.Name
+            <form asp-action="Logout" method="post" class="d-inline ms-2">
+                <button type="submit" class="btn btn-sm btn-outline-secondary">退出</button>
+            </form>
+        </span>
+    </div>
+
+    <div class="admin-sidebar">
+        <nav class="d-flex flex-column">
+            <a class="nav-link" asp-action="Reservations"
+               asp-route-status="">预约管理</a>
+            <a class="nav-link" asp-action="Seats">座位管理</a>
+            <a class="nav-link" asp-action="Statistics">数据统计</a>
+            <hr class="my-2" />
+            <a class="nav-link" asp-controller="Home" asp-action="Index">返回前台</a>
+        </nav>
+    </div>
+
+    <div class="admin-main">
+        @if (TempData["Success"] is string success)
+        {
+            <div class="alert alert-success alert-dismissible fade show">
+                @success
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["Error"] is string error)
+        {
+            <div class="alert alert-danger alert-dismissible fade show">
+                @error
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @RenderBody()
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        $('.admin-sidebar .nav-link').each(function () {
+            if (this.href === window.location.href || this.href === window.location.href.split('?')[0]) {
+                $(this).addClass('active');
+            }
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

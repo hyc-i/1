@@ -7,7 +7,7 @@ using LibrarySeatReservation.Web.Services;
 
 namespace LibrarySeatReservation.Web.Controllers;
 
-[Authorize]
+[Authorize(AuthenticationSchemes = "AdminCookie")]
 public class AdminController : Controller
 {
     private readonly IAdminService _adminService;
@@ -49,7 +49,11 @@ public class AdminController : Controller
             return View(model);
         }
 
-        var claims = new[] { new System.Security.Claims.Claim("username", model.Username) };
+        var claims = new List<System.Security.Claims.Claim>
+        {
+            new(System.Security.Claims.ClaimTypes.Name, model.Username),
+            new(System.Security.Claims.ClaimTypes.Role, "Admin")
+        };
         var identity = new System.Security.Claims.ClaimsIdentity(claims, "AdminCookie");
         var principal = new System.Security.Claims.ClaimsPrincipal(identity);
 
@@ -85,6 +89,7 @@ public class AdminController : Controller
         return View(vm);
     }
 
+    [HttpGet]
     public async Task<IActionResult> Seats()
     {
         var seats = await _seatService.GetAllSeatsForAdminAsync();
@@ -92,9 +97,49 @@ public class AdminController : Controller
         var vm = new AdminSeatsViewModel
         {
             Seats = seats,
-            AreaOptions = new SelectList(areas)
+            AreaOptions = new SelectList(areas),
+            NewSeat = new SeatEditViewModel()
         };
         return View(vm);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateSeat(SeatEditViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["Error"] = "请检查输入";
+            return RedirectToAction("Seats");
+        }
+
+        var result = await _seatService.CreateSeatAsync(model.SeatNumber, model.Area, model.Floor, model.Description);
+        TempData[result.Success ? "Success" : "Error"] = result.Success ? "座位已添加" : result.ErrorMessage;
+        return RedirectToAction("Seats");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditSeat(SeatEditViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["Error"] = "请检查输入";
+            return RedirectToAction("Seats");
+        }
+
+        var result = await _seatService.UpdateSeatAsync(model.Id, model.SeatNumber, model.Area, model.Floor, model.Description, model.IsActive);
+        TempData[result.Success ? "Success" : "Error"] = result.Success ? "座位信息已更新" : result.ErrorMessage;
+        return RedirectToAction("Seats");
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteSeat(int id)
+    {
+        var result = await _seatService.DeleteSeatAsync(id);
+        TempData[result.Success ? "Success" : "Error"] = result.Success ? "已停用" : result.ErrorMessage;
+        return RedirectToAction("Seats");
     }
 
     [HttpPost]

@@ -5,6 +5,7 @@ public class ReservationItem
     public int Id { get; set; }
     public string SeatNumber { get; set; } = string.Empty;
     public string Area { get; set; } = string.Empty;
+    public string? StudentName { get; set; }
     public DateTime ReservationDate { get; set; }
     public DateTime StartTime { get; set; }
     public DateTime EndTime { get; set; }
