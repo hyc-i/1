@@ -1,0 +1,52 @@
+@model SeatListViewModel
+@{
+    ViewData["Title"] = "座位列表";
+}
+
+<h2>座位列表</h2>
+
+<form method="get" class="row g-3 mb-3">
+    <div class="col-auto">
+        <select name="area" class="form-select" onchange="this.form.submit()">
+            <option value="">全部区域</option>
+            @foreach (var area in Model.AreaOptions!.Items)
+            {
+                <option value="@area" selected="@(string.Equals(Model.CurrentFilter, area))">@area</option>
+            }
+        </select>
+    </div>
+</form>
+
+<div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-3">
+    @foreach (var seat in Model.Seats)
+    {
+        <div class="col">
+            <div class="card h-100 @(seat.Status == "空闲" ? "border-success" : "border-secondary")">
+                <div class="card-body">
+                    <h5 class="card-title">@seat.SeatNumber</h5>
+                    <p class="card-text small text-muted">@seat.Area</p>
+                    @if (!string.IsNullOrEmpty(seat.Description))
+                    {
+                        <p class="card-text small">@seat.Description</p>
+                    }
+                    <span class="badge @(seat.Status == "空闲" ? "bg-success" : "bg-secondary")">@seat.Status</span>
+                </div>
+                <div class="card-footer bg-transparent">
+                    @if (seat.Status == "空闲")
+                    {
+                        <a asp-controller="Reservations" asp-action="Create" asp-route-seatId="@seat.Id" class="btn btn-success btn-sm w-100">预约</a>
+                    }
+                    else
+                    {
+                        <button class="btn btn-secondary btn-sm w-100" disabled>已预约</button>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.Seats.Count == 0)
+{
+    <p class="text-muted">没有符合条件的座位。</p>
+}

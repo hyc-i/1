@@ -1,0 +1,40 @@
+@model SeatDetailViewModel
+@{
+    ViewData["Title"] = "座位详情";
+}
+
+<h2>座位详情</h2>
+
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">座位编号</dt>
+            <dd class="col-sm-9">@Model.SeatNumber</dd>
+            <dt class="col-sm-3">区域</dt>
+            <dd class="col-sm-9">@Model.Area</dd>
+            @if (!string.IsNullOrEmpty(Model.Floor))
+            {
+                <dt class="col-sm-3">楼层</dt>
+                <dd class="col-sm-9">@Model.Floor</dd>
+            }
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <dt class="col-sm-3">描述</dt>
+                <dd class="col-sm-9">@Model.Description</dd>
+            }
+            <dt class="col-sm-3">状态</dt>
+            <dd class="col-sm-9">
+                <span class="badge @(Model.IsAvailable ? "bg-success" : "bg-secondary")">
+                    @(Model.IsAvailable ? "空闲" : "已预约")
+                </span>
+            </dd>
+        </dl>
+    </div>
+    <div class="card-footer">
+        @if (Model.IsAvailable)
+        {
+            <a asp-controller="Reservations" asp-action="Create" asp-route-seatId="@Model.Id" class="btn btn-success">预约此座位</a>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary">返回列表</a>
+    </div>
+</div>

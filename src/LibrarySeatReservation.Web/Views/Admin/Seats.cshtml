@@ -1,0 +1,30 @@
+@model AdminSeatsViewModel
+@{
+    ViewData["Title"] = "座位管理";
+}
+
+<h2>座位管理</h2>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>编号</th>
+                <th>区域</th>
+                <th>描述</th>
+                <th>状态</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var seat in Model.Seats)
+            {
+                <tr>
+                    <td>@seat.SeatNumber</td>
+                    <td>@seat.Area</td>
+                    <td>@seat.Description</td>
+                    <td><span class="badge @(seat.Status == "空闲" ? "bg-success" : seat.Status == "已预约" ? "bg-warning text-dark" : "bg-secondary")">@seat.Status</span></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
