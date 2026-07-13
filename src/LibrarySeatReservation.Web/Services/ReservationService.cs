@@ -51,7 +51,14 @@ public class ReservationService : IReservationService
         };
 
         _db.Reservations.Add(reservation);
-        await _db.SaveChangesAsync();
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            return (false, "该时段已被预约，请选择其他时段");
+        }
 
         return (true, string.Empty);
     }

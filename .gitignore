@@ -38,3 +38,4 @@ Thumbs.db
 *.mdf
 *.ldf
 App_Data/
+watch.ps1

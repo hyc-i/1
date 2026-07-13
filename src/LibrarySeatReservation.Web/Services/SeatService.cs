@@ -19,7 +19,7 @@ public class SeatService : ISeatService
         var total = await _db.Seats.CountAsync(s => s.IsActive);
 
         var occupied = await _db.Reservations
-            .CountAsync(r => r.Status == "预约中" && r.StartTime <= now && r.EndTime > now);
+            .CountAsync(r => r.Status == "预约中" && r.StartTime <= now && r.EndTime >= now);
 
         return (total, total - occupied, occupied);
     }
