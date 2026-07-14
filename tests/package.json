@@ -1,0 +1,19 @@
+{
+  "name": "tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "node smoke-test.mjs",
+    "test:playwright": "npx playwright test --config=playwright.config.js",
+    "test:smoke": "node smoke-test.mjs",
+    "test:all": "node smoke-test.mjs && npx playwright test --config=playwright.config.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.61.1"
+  }
+}

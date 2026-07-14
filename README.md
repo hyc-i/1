@@ -2,8 +2,8 @@
 
 一个基于 **ASP.NET Core MVC + EF Core + SQL Server** 的图书馆座位预约系统，支持学生端 7 步预约闭环和管理端完整管理。
 
-> **当前阶段**：管理端闭环已完成（Sprint 0~4 + 增强），进入边界与错误处理阶段（Sprint 5）。
-> **关联文档**：[docs/13-用户端主链路开发记录.md](docs/13-用户端主链路开发记录.md) · [docs/14-管理端与权限开发记录.md](docs/14-管理端与权限开发记录.md)
+> **当前阶段**：联调测试与缺陷闭环已完成（Sprint 6），P0/P1 清零。
+> **关联文档**：[docs/16-联调测试与缺陷闭环.md](docs/16-联调测试与缺陷闭环.md) · [docs/13-用户端主链路开发记录.md](docs/13-用户端主链路开发记录.md)
 
 ---
 
@@ -37,7 +37,7 @@
 | 404 / 错误页 | Sprint 5 | 友好错误页面处理 |
 | 空状态细化 | Sprint 5 | 各页面的空状态/加载态 |
 | 原型样式适配（用户端） | Sprint 5 | 按 docs/05 UI 规范调整用户端视图 |
-| 端到端测试 | Sprint 6 | 按 docs/09-8.2 逐场景手工测试 |
+| 录屏演示准备 | Sprint 6 | 按 docs/09-8.2 主链路录屏 |
 
 ---
 
@@ -92,6 +92,40 @@ second-classroom-manager/
 └── LibrarySeatReservation.slnx        ← 新解决方案文件
 ```
 
+---
+
+## 自动化测试
+
+### Playwright 自动点击烟雾测试
+
+基于 `@playwright/test` + 系统自带 `Microsoft Edge`（`channel: 'msedge'`），覆盖用户端 7 步主链路和管理端 5 步管理链路。
+
+```bash
+cd tests
+npm install
+npx playwright test --config=playwright.config.js
+```
+
+> 测试自动启动应用（端口 5193），执行完毕后关闭。不依赖 Playwright 自带浏览器。
+
+### 脚本烟雾测试
+
+基于 Node.js HTTP 请求，覆盖 9 个关键端点（首页/座位列表/管理端登录/静态资源等）。
+
+```bash
+cd tests
+node smoke-test.mjs
+```
+
+### 测试结果参考
+
+| 测试类型 | 用例数 | 通过率 | 执行时间 |
+|----------|--------|--------|---------|
+| Playwright 自动点击 | 12 | 100%（12/12）| ~35s |
+| 脚本烟雾测试 | 9 | 100%（9/9）| ~2s |
+
+---
+
 ## 运行要求
 
 - Windows 10/11（LocalDB 依赖 Windows）
@@ -126,10 +160,12 @@ http://localhost:5000
 | 限制 | 说明 | 计划处理 |
 |------|------|----------|
 | 无页面分页 | 数据量 < 100 条时不需分页 | 数据增长后再实现 |
-| 预约时长/次数不限 | 演示场景信任用户 | Sprint 6 评估是否需要 |
+| 预约时长/次数不限 | 演示场景信任用户 | 后续评估 |
 | 无自动过期 | 需定时任务 | 已排除在 MVP 外 |
 | 用户端视图样式未对齐原型 | 当前使用 Bootstrap 默认样式 | Sprint 5 |
 | 仅支持 LocalDB | 切换 SQL Server 需改连接串 | 按需 |
+| 仅验证了 msedge 通道 | Chrome/Firefox 未单独测试 | 按需 |
+| 未覆盖 IE11 | IE 已停止支持 | 不处理 |
 
 ---
 

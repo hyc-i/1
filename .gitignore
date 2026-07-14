@@ -39,3 +39,8 @@ Thumbs.db
 *.ldf
 App_Data/
 watch.ps1
+
+# Playwright test artifacts
+tests/playwright-report/
+tests/test-results/
+tests/node_modules/
