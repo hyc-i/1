@@ -36,6 +36,7 @@
                                 data-id="@seat.Id"
                                 data-seatnumber="@seat.SeatNumber"
                                 data-area="@seat.Area"
+                                data-floor="@seat.Floor"
                                 data-description="@seat.Description">编辑</button>
                         <form asp-action="DeleteSeat" asp-route-id="@seat.Id" method="post" class="d-inline"
                               onsubmit="return confirm('确定停用座位 @seat.SeatNumber？')">

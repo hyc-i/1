@@ -43,6 +43,7 @@ public class AppDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
 
             e.HasIndex(r => new { r.SeatId, r.ReservationDate, r.StartTime, r.EndTime })
+                .IsUnique()
                 .HasDatabaseName("IX_Reservation_Seat_Time");
             e.HasIndex(r => new { r.StudentIdentifier, r.ReservationDate })
                 .HasDatabaseName("IX_Reservation_Student");

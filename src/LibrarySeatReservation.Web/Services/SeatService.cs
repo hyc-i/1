@@ -97,6 +97,7 @@ public class SeatService : ISeatService
             Id = s.Id,
             SeatNumber = s.SeatNumber,
             Area = s.Area,
+            Floor = s.Floor,
             Description = s.Description,
             Status = s.IsActive ? (occupiedSeatIds.Contains(s.Id) ? "已预约" : "空闲") : "已停用"
         }).ToList();

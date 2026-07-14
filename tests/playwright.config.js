@@ -30,6 +30,6 @@ module.exports = defineConfig({
     url: 'http://localhost:5193',
     reuseExistingServer: !process.env.CI,
     timeout: 60000,
-    cwd: 'D:\\AIWeb\\second-classroom-manager',
+    cwd: __dirname + '/..',
   },
 });
